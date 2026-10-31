@@ -1,0 +1,1089 @@
+<!-- Gouji card counter | Copyright (c) 2026 Brian Lee (SylvanRoe) | Strict non-commercial license: no commercial use; personal use only with attribution to Brian Lee (SylvanRoe). See LICENSE. -->
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>够级记牌器静态版</title>
+    <style>
+      :root {
+        --bg: #edf0ec;
+        --panel: #ffffff;
+        --panel-2: #f4f6f3;
+        --ink: #1d2620;
+        --muted: #5f6d63;
+        --line: #d7ddd6;
+        --green: #177a4c;
+        --green-deep: #0d5c37;
+        --felt: #1e7a4a;
+        --felt-deep: #125232;
+        --amber: #dd9416;
+        --amber-soft: #fdf3dd;
+        --red: #bf3b2b;
+        --gold: #a97b12;
+        --gold-soft: #faf0d2;
+        --chip: #eef2ee;
+        --chip-ink: #243028;
+        --shadow: 0 1px 3px rgba(20, 40, 25, .10), 0 4px 14px rgba(20, 40, 25, .06);
+        --rec-bg: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101410;
+          --panel: #1b211b;
+          --panel-2: #222922;
+          --ink: #e9eee9;
+          --muted: #9fb0a2;
+          --line: #333d33;
+          --green: #2ea367;
+          --green-deep: #1d7a4c;
+          --felt: #175c38;
+          --felt-deep: #0e3d24;
+          --amber: #e8a83e;
+          --amber-soft: #3a2f16;
+          --red: #e06a58;
+          --gold: #d8ab3e;
+          --gold-soft: #38300f;
+          --chip: #283028;
+          --chip-ink: #e6ede6;
+          --shadow: 0 1px 3px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+          --rec-bg: #1b211b;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; padding: 0; }
+      button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+      h2 { font-size: 16px; margin: 0; font-weight: 700; }
+
+      .content { padding: 12px 12px 300px; max-width: 760px; margin: 0 auto; }
+
+      /* ---------- top bar ---------- */
+      .topbar {
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        margin-bottom: 12px;
+      }
+      .round-info { font-size: 15px; color: var(--muted); margin-right: 2px; }
+      .round-info b { color: var(--ink); font-size: 17px; }
+      .game-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+      .game-tab {
+        padding: 7px 13px; border-radius: 999px; background: var(--chip); color: var(--chip-ink);
+        font-weight: 600; border: 1.5px solid transparent;
+      }
+      .game-tab.active { background: var(--green); color: #fff; }
+      .game-tab.done { border-color: var(--green); }
+      .game-tab .done-mark { color: var(--green); font-weight: 800; }
+      .game-tab.active .done-mark { color: #ffe9a8; }
+      .top-actions { display: flex; gap: 6px; margin-left: auto; }
+      .btn-ghost {
+        padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--line);
+        background: var(--panel); font-weight: 600;
+      }
+      .btn-end {
+        padding: 7px 12px; border-radius: 8px; background: var(--green-deep); color: #fff; font-weight: 700;
+      }
+
+      /* ---------- panels ---------- */
+      .panel {
+        background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+        box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px;
+      }
+      .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+      .panel-head .hint { color: var(--muted); font-size: 13px; }
+      .panel-head .hint b { color: var(--ink); }
+
+      /* ---------- round table ---------- */
+      .table-wrap { position: relative; width: min(400px, 92vw); aspect-ratio: 1/1; margin: 2px auto 6px; }
+      .felt {
+        position: absolute; inset: 11% 11%; border-radius: 50%;
+        background: radial-gradient(circle at 50% 42%, var(--felt) 0%, var(--felt-deep) 78%);
+        border: 10px solid #7a5230;
+        box-shadow: inset 0 0 0 3px rgba(255,255,255,.14), 0 6px 18px rgba(10,40,20,.25);
+      }
+      @media (prefers-color-scheme: dark) { .felt { border-color: #5d3f22; } }
+      .felt-center {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+        color: rgba(255,255,255,.92); text-align: center; font-size: 13px; line-height: 1.5;
+        pointer-events: none; font-weight: 600; letter-spacing: .02em;
+      }
+      .felt-center b { font-size: 19px; display: block; }
+      .seat {
+        position: absolute; transform: translate(-50%,-50%);
+        width: 92px; min-height: 68px; border-radius: 14px;
+        background: var(--panel); border: 2px solid var(--line);
+        box-shadow: var(--shadow); padding: 6px 4px 5px; text-align: center;
+      }
+      .seat .seat-name { font-weight: 800; font-size: 16px; display: block; }
+      .seat .seat-left { font-size: 12px; color: var(--muted); display: block; margin-top: 1px; }
+      .seat .seat-left b { color: var(--ink); font-size: 23px; font-weight: 800; line-height: 1.1; }
+
+      /* ---------- 当前剩余一览（主视图） ---------- */
+      .remain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+      .remain-card {
+        background: var(--panel-2); border: 2px solid var(--line); border-radius: 12px;
+        padding: 9px 10px 10px; text-align: left; width: 100%;
+      }
+      .remain-card:active { transform: scale(.97); }
+      .remain-card.selected { border-color: var(--amber); background: var(--amber-soft); }
+      .remain-card .rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+      .remain-card .rm-name { font-weight: 800; font-size: 16px; }
+      .remain-card .rm-tag { font-size: 11px; color: var(--muted); font-weight: 600; }
+      .remain-card .rm-num { font-size: 36px; font-weight: 800; line-height: 1.05; display: block; margin-top: 2px; }
+      .remain-card .rm-num small { font-size: 14px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+      .remain-card .rm-bar { height: 6px; border-radius: 999px; background: var(--line); margin-top: 7px; overflow: hidden; }
+      .remain-card .rm-fill { height: 100%; border-radius: 999px; background: var(--green); transition: width .25s; }
+      .remain-card.low .rm-num { color: var(--amber); }
+      .remain-card.low .rm-fill { background: var(--amber); }
+      .remain-card.critical .rm-num { color: var(--red); }
+      .remain-card.critical .rm-fill { background: var(--red); }
+      .remain-card .rm-played { font-size: 12px; color: var(--muted); display: block; margin-top: 5px; }
+      @media (max-width: 380px) { .remain-grid { grid-template-columns: repeat(2, 1fr); } }
+      /* 手机上圆桌座位本身就是剩余主视图（大数字、同顺序、同点选），一览网格只在宽屏显示，避免被底部记牌区遮挡 */
+      @media (max-width: 700px) { .remain-grid { display: none; } }
+      .seat .seat-tag { font-size: 11px; display: inline-block; margin-top: 2px; padding: 0 7px; border-radius: 999px; background: var(--chip); color: var(--muted); font-weight: 600; }
+      .seat.ally .seat-tag { background: #e2f2e7; color: var(--green-deep); }
+      @media (prefers-color-scheme: dark) { .seat.ally .seat-tag { background: #173d27; color: #7fd6a4; } }
+      .seat.selected { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft), var(--shadow); }
+      .seat:active { transform: translate(-50%,-50%) scale(.96); }
+
+      /* player detail */
+      .detail { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 6px; }
+      .detail-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; margin-bottom: 8px; }
+      .detail-head .d-name { font-size: 17px; font-weight: 800; }
+      .detail-head .d-stat { color: var(--muted); font-size: 13.5px; }
+      .detail-head .d-stat b { color: var(--ink); }
+      .agg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .agg-empty { color: var(--muted); font-size: 14px; }
+      .card-chip {
+        display: inline-flex; align-items: baseline; gap: 3px;
+        background: var(--chip); color: var(--chip-ink); border-radius: 8px; padding: 4px 9px;
+        font-weight: 700; font-size: 14.5px;
+      }
+      .card-chip .n { color: var(--green-deep); font-weight: 800; }
+      @media (prefers-color-scheme: dark) { .card-chip .n { color: #7fd6a4; } }
+      .card-chip.rank-eagle { background: var(--gold-soft); }
+      .card-chip.rank-big { color: var(--red); }
+      .detail-sub { font-size: 13px; font-weight: 700; color: var(--muted); margin: 10px 0 6px; }
+      .detail-sub:first-of-type { margin-top: 2px; }
+      .agg-text {
+        font-size: 17px; font-weight: 800; line-height: 1.65; letter-spacing: .01em;
+        background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px;
+        overflow-wrap: anywhere;
+      }
+      .detail-plays { margin-top: 4px; display: flex; flex-direction: column; gap: 5px; }
+      .detail-play { font-size: 13.5px; color: var(--muted); }
+      .detail-play b { color: var(--ink); }
+
+      /* ---------- matrix ---------- */
+      .matrix { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+      .mx-cell { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 4px 6px; text-align: center; }
+      .mx-rank { font-weight: 800; font-size: 15.5px; display: block; }
+      .mx-left { font-size: 21px; font-weight: 800; display: block; line-height: 1.2; }
+      .mx-sub { font-size: 11.5px; color: var(--muted); display: block; }
+      .mx-cell.low .mx-left { color: var(--amber); }
+      .mx-cell.out { opacity: .55; }
+      .mx-cell.out .mx-left { color: var(--red); }
+      .rank-eagle-t { color: var(--gold); }
+      .rank-big-t { color: var(--red); }
+
+      /* ---------- timeline ---------- */
+      .tl-list { display: flex; flex-direction: column; }
+      .tl-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+      .tl-item:last-child { border-bottom: none; }
+      .tl-seq { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--chip); color: var(--muted); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+      .tl-main { flex: 1; min-width: 0; }
+      .tl-who { font-weight: 800; margin-right: 6px; }
+      .tl-who.link { text-decoration: underline dotted; text-underline-offset: 3px; }
+      .tl-cards { font-weight: 600; }
+      .tl-meta { color: var(--muted); font-size: 12.5px; }
+      .tl-snap { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+      .tl-snap .snap-label { font-size: 12px; color: var(--muted); align-self: center; margin-right: 1px; }
+      .snap-chip { background: var(--chip); color: var(--chip-ink); border-radius: 999px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+      .snap-chip b { font-weight: 800; }
+      .snap-chip.played { background: var(--amber-soft); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--amber); }
+      .tl-del { color: var(--red); font-size: 13px; font-weight: 600; padding: 4px 6px; flex: 0 0 auto; }
+      .tl-empty { color: var(--muted); padding: 10px 0 4px; }
+      .btn-undo {
+        padding: 6px 11px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--panel); font-weight: 600; font-size: 13.5px;
+      }
+      .btn-undo:disabled { opacity: .45; cursor: default; }
+
+      /* ---------- tribute ---------- */
+      .trib-note { color: var(--muted); padding: 4px 0; }
+      .trib-group { margin-bottom: 12px; }
+      .trib-label { font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+      .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+      .pick-chip {
+        padding: 7px 13px; border-radius: 999px; background: var(--chip); color: var(--chip-ink);
+        font-weight: 700; border: 2px solid transparent;
+      }
+      .pick-chip.active { background: var(--green); color: #fff; }
+      .pick-chip.p-amber.active { background: var(--amber); color: #231a04; }
+      .mini-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+      .mini-card {
+        background: var(--panel-2); border: 1.5px solid var(--line); border-radius: 9px;
+        padding: 7px 2px 5px; text-align: center; position: relative; font-weight: 800; font-size: 15px;
+      }
+      .mini-card .staged-badge {
+        position: absolute; top: -7px; right: -5px; background: var(--amber); color: #231a04;
+        font-size: 12px; font-weight: 800; border-radius: 999px; min-width: 21px; height: 21px;
+        display: flex; align-items: center; justify-content: center; padding: 0 5px;
+      }
+      .mini-card.picking { border-color: var(--amber); }
+      .count-row { margin-top: 8px; background: var(--amber-soft); border-radius: 10px; padding: 9px; }
+      .count-row .cr-label { font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 7px; }
+      .count-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+      .count-btn { width: 100%; height: 42px; padding: 0 2px; border-radius: 9px; background: var(--panel); border: 1.5px solid var(--line); font-weight: 800; font-size: 16px; text-align: center; }
+      .count-btn:active { background: var(--amber); }
+      .count-actions { display: flex; gap: 6px; margin-top: 6px; }
+      .count-act { flex: 1; height: 38px; border-radius: 9px; background: var(--panel); border: 1.5px solid var(--line); font-weight: 700; font-size: 14px; }
+      .count-act:active { background: var(--amber); }
+      .count-act.more { border-color: var(--amber); font-weight: 800; }
+      .count-act.cancel { color: var(--muted); font-weight: 600; }
+      .trib-staged { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 6px; }
+      .trib-staged .card-chip { cursor: pointer; }
+      .btn-trib {
+        width: 100%; margin-top: 4px; padding: 12px; border-radius: 10px;
+        background: var(--green); color: #fff; font-weight: 800; font-size: 16px;
+      }
+      .btn-trib:active { background: var(--green-deep); }
+      .trib-list { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+      .trib-item { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; }
+      .trib-item .t-head { display: flex; gap: 8px; align-items: baseline; }
+      .trib-type { background: var(--green-deep); color: #fff; font-size: 12px; font-weight: 800; border-radius: 6px; padding: 2px 8px; }
+      .trib-item .t-who { font-weight: 700; flex: 1; }
+      .trib-item .t-cards { margin-top: 4px; font-weight: 600; }
+      .trib-item .t-ret { margin-top: 2px; color: var(--muted); font-size: 13.5px; }
+      .form-err { color: var(--red); font-weight: 600; font-size: 13.5px; margin-top: 6px; min-height: 0; }
+
+      /* ---------- 轮次操作（页脚小按钮） ---------- */
+      .round-actions { display: flex; gap: 8px; margin: 2px 0 6px; }
+      .btn-newround { flex: 1; padding: 11px; border-radius: 10px; border: 2px solid var(--green); color: var(--green-deep); font-weight: 800; font-size: 15px; background: var(--panel); }
+      @media (prefers-color-scheme: dark) { .btn-newround { color: #7fd6a4; } }
+      .btn-reset { padding: 11px 14px; border-radius: 10px; color: var(--red); font-weight: 600; font-size: 13.5px; }
+
+      /* ---------- recorder ---------- */
+      .recorder {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+        background: var(--rec-bg); border-top: 1.5px solid var(--line);
+        box-shadow: 0 -6px 22px rgba(15, 35, 20, .14);
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        max-height: 62vh; overflow-y: auto;
+      }
+      .rec-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+      .rec-head .rec-title { font-size: 15px; color: var(--muted); font-weight: 600; }
+      .rec-head .rec-title b { color: var(--ink); font-size: 17px; }
+      .rec-head .rec-left { color: var(--muted); font-size: 13px; }
+      .rec-head .rec-left b { color: var(--green-deep); font-size: 15px; }
+      @media (prefers-color-scheme: dark) { .rec-head .rec-left b { color: #7fd6a4; } }
+      .rec-people { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 9px; }
+      .rec-person { padding: 7px 1px; border-radius: 9px; background: var(--chip); color: var(--chip-ink); font-weight: 700; font-size: 13.5px; border: 2px solid transparent; text-align: center; white-space: nowrap; }
+      .rec-person .rp-left { font-size: 12px; font-weight: 800; color: var(--muted); margin-left: 2px; }
+      .rec-person.active { background: var(--green); color: #fff; border-color: var(--green-deep); }
+      .rec-person.active .rp-left { color: #ffe9a8; }
+      .rec-cards { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+      .rec-card { background: var(--panel-2); border: 1.5px solid var(--line); border-radius: 9px; padding: 6px 1px 4px; text-align: center; position: relative; }
+      .rec-card .rc-rank { font-weight: 800; font-size: 15.5px; display: block; line-height: 1.15; }
+      .rec-card .rc-left { font-size: 11px; color: var(--muted); display: block; }
+      .rec-card .staged-badge {
+        position: absolute; top: -7px; right: -4px; background: var(--amber); color: #231a04;
+        font-size: 12px; font-weight: 800; border-radius: 999px; min-width: 21px; height: 21px;
+        display: flex; align-items: center; justify-content: center; padding: 0 5px; z-index: 2;
+      }
+      .rec-card.picking { border-color: var(--amber); background: var(--amber-soft); }
+      .rec-card.spent { opacity: .45; }
+      .staged-row { display: flex; gap: 7px; align-items: stretch; margin-top: 10px; }
+      .staged { flex: 1; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: 44px; background: var(--panel-2); border: 1px dashed var(--line); border-radius: 10px; padding: 5px 8px; }
+      .staged-empty { color: var(--muted); font-size: 13px; }
+      .staged .card-chip { cursor: pointer; }
+      .btn-clear { padding: 0 13px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel); font-weight: 600; }
+      .btn-record { padding: 0 20px; border-radius: 10px; background: var(--green); color: #fff; font-weight: 800; font-size: 16.5px; min-height: 44px; }
+      .btn-record:active { background: var(--green-deep); }
+      .btn-record:disabled { opacity: .45; }
+      .rec-direct-hint { margin-top: 9px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+      .rec-direct-hint b { color: var(--ink); }
+
+      /* ---------- toast & modal ---------- */
+      .toast {
+        position: fixed; left: 50%; transform: translateX(-50%) translateY(8px); bottom: 66vh;
+        background: #20291f; color: #fff; padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
+        opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 90; max-width: 88vw; text-align: center;
+      }
+      .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      .modal-mask { position: fixed; inset: 0; background: rgba(10, 15, 10, .5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+      .modal-mask.open { display: flex; }
+      .modal { background: var(--panel); border-radius: 16px; padding: 20px; max-width: 400px; width: 100%; box-shadow: var(--shadow); }
+      .modal p { margin: 0 0 16px; font-size: 15.5px; }
+      .modal .m-actions { display: flex; gap: 8px; }
+      .modal .m-actions button { flex: 1; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 15px; }
+      .modal .m-cancel { border: 1.5px solid var(--line); background: var(--panel); }
+      .modal .m-ok { background: var(--green); color: #fff; }
+      .modal .m-ok.danger { background: var(--red); }
+
+      /* ---------- desktop ---------- */
+      @media (min-width: 1024px) {
+        .content { max-width: none; margin: 0; margin-right: 384px; padding: 20px 22px 40px; }
+        .recorder {
+          left: auto; width: 384px; top: 0; max-height: none; height: 100dvh;
+          border-top: none; border-left: 1.5px solid var(--line);
+          padding: 18px 16px; display: flex; flex-direction: column;
+        }
+        .rec-cards { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+        .rec-card { padding: 10px 2px 8px; }
+        .rec-card .rc-rank { font-size: 17px; }
+        .rec-people { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+        .rec-person { padding: 9px 2px; font-size: 14.5px; }
+        .staged { min-height: 52px; }
+        .toast { bottom: auto; top: 22px; }
+      }
+      @media (min-width: 1400px) {
+        .wide-split { display: grid; grid-template-columns: minmax(430px, 1.02fr) minmax(400px, .98fr); gap: 14px; align-items: start; }
+        .wide-split .panel { margin-bottom: 14px; }
+        .table-wrap { width: min(440px, 100%); }
+        .matrix { grid-template-columns: repeat(4, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <div class="topbar">
+        <div class="round-info">第 <b id="roundNo">1</b> 轮</div>
+        <nav class="game-tabs" id="gameTabs" aria-label="局次"></nav>
+        <div class="top-actions">
+          <button class="btn-end" id="btnEndGame" type="button">结束本局</button>
+        </div>
+      </div>
+
+      <section class="panel" aria-label="所有人剩余">
+        <div class="panel-head"><h2>现在每人还剩</h2><span class="hint">点任意一家，记牌自动换人</span></div>
+        <div class="table-wrap" id="tableWrap">
+          <div class="felt"></div>
+          <div class="felt-center"><b>312 张</b>每人 52 张 · 3 只有 6 张</div>
+        </div>
+        <div class="remain-grid" id="remainGrid"></div>
+        <div class="detail" id="playerDetail"></div>
+      </section>
+
+      <div class="wide-split">
+        <div class="col-a">
+          <section class="panel" aria-label="每种牌剩余">
+            <div class="panel-head"><h2>每种牌还剩</h2><span class="hint">全场还剩 <b id="totalLeft">312</b> 张</span></div>
+            <div class="matrix" id="matrix"></div>
+          </section>
+
+          <section class="panel" id="tributePanel" aria-label="进贡买3买4送3送4"></section>
+        </div>
+
+        <div class="col-b">
+          <section class="panel" aria-label="出牌记录">
+            <div class="panel-head">
+              <h2>出牌记录 · <span id="tlGameLabel">第 1 局</span></h2>
+              <button class="btn-undo" id="btnUndo" type="button">撤销上一手</button>
+            </div>
+            <div class="tl-list" id="timeline"></div>
+          </section>
+        </div>
+      </div>
+
+      <div class="round-actions">
+        <button type="button" class="btn-newround" id="btnNewRound">开启新一轮</button>
+        <button type="button" class="btn-reset" id="btnResetAll">清空重开</button>
+      </div>
+    </div>
+
+    <aside class="recorder" id="recorder" aria-label="记牌区">
+      <div class="rec-head">
+        <span class="rec-title">记牌 · <b id="recPlayerName">你</b></span>
+        <span class="rec-left">还剩 <b id="recPlayerLeft">52</b> 张</span>
+      </div>
+      <div class="rec-people" id="recPeople"></div>
+      <div class="rec-cards" id="recCards"></div>
+      <div id="recPicker"></div>
+      <div class="rec-direct-hint"><b>点牌面 → 点张数，直接记下</b>，不用再点确定；记错了在出牌记录里删掉那一手就行。</div>
+    </aside>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <div class="modal-mask" id="modalMask">
+      <div class="modal">
+        <p id="modalText"></p>
+        <div class="m-actions">
+          <button class="m-cancel" id="modalCancel" type="button">取消</button>
+          <button class="m-ok" id="modalOk" type="button">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      'use strict';
+      /* ============ 基础数据 ============ */
+      var RANKS = [
+        { id: 'eagle', label: '鹰',   total: 6,  cls: 'rank-eagle' },
+        { id: 'big',   label: '大王', total: 6,  cls: 'rank-big' },
+        { id: 'small', label: '小王', total: 6,  cls: '' },
+        { id: '2',  label: '2',  total: 24, cls: '' },
+        { id: 'A',  label: 'A',  total: 24, cls: '' },
+        { id: 'K',  label: 'K',  total: 24, cls: '' },
+        { id: 'Q',  label: 'Q',  total: 24, cls: '' },
+        { id: 'J',  label: 'J',  total: 24, cls: '' },
+        { id: '10', label: '10', total: 24, cls: '' },
+        { id: '9',  label: '9',  total: 24, cls: '' },
+        { id: '8',  label: '8',  total: 24, cls: '' },
+        { id: '7',  label: '7',  total: 24, cls: '' },
+        { id: '6',  label: '6',  total: 24, cls: '' },
+        { id: '5',  label: '5',  total: 24, cls: '' },
+        { id: '4',  label: '4',  total: 24, cls: '' },
+        { id: '3',  label: '3',  total: 6,  cls: '' }
+      ];
+      var RANK_MAP = {};
+      RANKS.forEach(function (r) { RANK_MAP[r.id] = r; });
+      var TRIB_RANKS = RANKS.filter(function (r) { return r.id !== 'eagle'; }); // 鹰不参与进贡
+
+      var PLAYERS = [
+        { id: 'you',      label: '你',   ally: true },
+        { id: 'duimen',   label: '对门', ally: false },
+        { id: 'shangjia', label: '上家', ally: false },
+        { id: 'xiajia',   label: '下家', ally: false },
+        { id: 'shanglian', label: '上联', ally: true },
+        { id: 'xialian',  label: '下联', ally: true }
+      ];
+      var PLAYER_MAP = {};
+      PLAYERS.forEach(function (p) { PLAYER_MAP[p.id] = p; });
+      // 圆桌：从12点顺时针 对门→下联→下家→你→上家→上联
+      var TABLE_ORDER = ['duimen', 'xialian', 'xiajia', 'you', 'shangjia', 'shanglian'];
+      var TRIB_TYPES = [
+        { id: 'dian',  label: '点贡' },
+        { id: 'shao',  label: '烧贡' },
+        { id: 'men',   label: '闷贡' },
+        { id: 'luo',   label: '落贡' },
+        { id: 'mai3',  label: '买3' },
+        { id: 'mai4',  label: '买4' },
+        { id: 'song3', label: '送3' },
+        { id: 'song4', label: '送4' }
+      ];
+      var TRIB_MAP = {};
+      TRIB_TYPES.forEach(function (t) { TRIB_MAP[t.id] = t; });
+      var TRIB_EXPECT = { mai3: '3', song3: '3', mai4: '4', song4: '4' };
+      function isBuyType(id) { return id === 'mai3' || id === 'mai4'; }
+      function isSongType(id) { return id === 'song3' || id === 'song4'; }
+      function isClassicType(id) { return id === 'dian' || id === 'shao' || id === 'men' || id === 'luo'; }
+      function tribNeedsReturn(id) { return isBuyType(id) || id === 'luo'; }
+      var HAND_SIZE = 52, DECK_TOTAL = 312, STORE_KEY = 'gouji-counter-v1';
+
+      /* ============ 状态 ============ */
+      function emptyGame() { return { plays: [], tributes: [] }; }
+      function freshState() {
+        var games = {}, finished = {};
+        for (var i = 1; i <= 5; i++) { games[i] = emptyGame(); finished[i] = false; }
+        return { roundNo: 1, viewGame: 1, finished: finished, games: games, selectedPlayer: 'you', pastRounds: [] };
+      }
+      var state = freshState();
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.games && parsed.roundNo) state = parsed;
+        }
+      } catch (e) { /* 存储不可用时按新局开始 */ }
+      if (!state.pastRounds) state.pastRounds = [];
+      if (!state.selectedPlayer) state.selectedPlayer = 'you';
+      if (!state.viewGame) state.viewGame = 1;
+
+      // 临时选择（不落盘）
+      var staged = {};        // 兼容旧逻辑保留（记牌已改为点张数直接录入）
+      var picking = null;     // 记牌区正在选张数的牌
+      var recCountExpanded = false;  // 记牌区张数是否展开到 12 以上
+      var tribCountExpanded = false; // 进贡区张数是否展开到 12 以上
+      var trib = { type: 'mai3', giver: 'duimen', receiver: 'you', give: { '3': 1 }, ret: {}, pickArea: null, pickRank: null };
+      var tribErr = '';
+
+      function save() {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 忽略 */ }
+      }
+      function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+      function g() { return state.games[state.viewGame]; }
+      function cardsTotal(cards) { var s = 0; for (var k in cards) s += cards[k]; return s; }
+      function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+      /* ============ 计算 ============ */
+      function rankPlayed(gameNo, rankId) {
+        var s = 0, ps = state.games[gameNo].plays;
+        for (var i = 0; i < ps.length; i++) s += (ps[i].cards[rankId] || 0);
+        return s;
+      }
+      function rankLeft(gameNo, rankId) { return RANK_MAP[rankId].total - rankPlayed(gameNo, rankId); }
+      function playerPlayed(gameNo, pid) {
+        var s = 0, ps = state.games[gameNo].plays;
+        for (var i = 0; i < ps.length; i++) if (ps[i].player === pid) s += cardsTotal(ps[i].cards);
+        return s;
+      }
+      function tributeNet(gameNo, pid) {
+        var net = 0, ts = state.games[gameNo].tributes;
+        for (var i = 0; i < ts.length; i++) {
+          var t = ts[i], giveN = cardsTotal(t.cards), retN = cardsTotal(t.ret || {});
+          if (t.giver === pid) net += -giveN + retN;
+          if (t.receiver === pid) net += giveN - retN;
+        }
+        return net;
+      }
+      function playerLeft(gameNo, pid) { return HAND_SIZE - playerPlayed(gameNo, pid) + tributeNet(gameNo, pid); }
+      function totalLeft(gameNo) {
+        var s = 0, ps = state.games[gameNo].plays;
+        for (var i = 0; i < ps.length; i++) s += cardsTotal(ps[i].cards);
+        return DECK_TOTAL - s;
+      }
+      function fmtCards(cards) {
+        var parts = [];
+        RANKS.forEach(function (r) { if (cards[r.id]) parts.push(r.label + '×' + cards[r.id]); });
+        return parts.join(' · ');
+      }
+      function chipsHTML(cards, removable, area) {
+        var html = '';
+        RANKS.forEach(function (r) {
+          if (!cards[r.id]) return;
+          html += '<span class="card-chip ' + r.cls + '"' +
+            (removable ? ' data-remove="' + r.id + '" data-area="' + area + '" title="点一下移除"' : '') +
+            '>' + esc(r.label) + '<span class="n">×' + cards[r.id] + '</span></span>';
+        });
+        return html;
+      }
+
+      /* 张数选择：默认整齐排 1–12（6 个一行），超过 12 才出现「更多」展开 */
+      var COUNT_COMMON_MAX = 12, COUNT_COLS = 6;
+      function countPickerHTML(labelText, max, expanded, showClear) {
+        var html = '<div class="count-row"><span class="cr-label">' + esc(labelText) + '</span>';
+        if (max === 0) {
+          html += '<span class="cr-label">没有可记的了</span>';
+        } else {
+          var shown = expanded ? max : Math.min(COUNT_COMMON_MAX, max);
+          html += '<div class="count-grid">';
+          for (var n = 1; n <= shown; n++) html += '<button type="button" class="count-btn" data-pnum="' + n + '">' + n + '</button>';
+          html += '</div>';
+        }
+        html += '<div class="count-actions">';
+        if (max > COUNT_COMMON_MAX && !expanded) html += '<button type="button" class="count-act more" data-pmore="1">更多（13–' + max + '）</button>';
+        if (max > COUNT_COMMON_MAX && expanded) html += '<button type="button" class="count-act more" data-pmore="0">收起</button>';
+        if (showClear) html += '<button type="button" class="count-act cancel" data-pclear="1">清除已选</button>';
+        html += '<button type="button" class="count-act cancel" data-pcancel="1">取消</button></div></div>';
+        return html;
+      }
+
+      /* ============ 提示 / 确认框 ============ */
+      var toastTimer = null;
+      function toast(msg) {
+        var el = document.getElementById('toast');
+        el.textContent = msg; el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1900);
+      }
+      var modalCb = null;
+      function showConfirm(text, okLabel, danger, cb) {
+        document.getElementById('modalText').textContent = text;
+        var ok = document.getElementById('modalOk');
+        ok.textContent = okLabel || '确定';
+        ok.classList.toggle('danger', !!danger);
+        document.getElementById('modalMask').classList.add('open');
+        modalCb = cb;
+      }
+      function closeModal() { document.getElementById('modalMask').classList.remove('open'); modalCb = null; }
+      document.getElementById('modalCancel').addEventListener('click', closeModal);
+      document.getElementById('modalOk').addEventListener('click', function () {
+        var cb = modalCb; closeModal(); if (cb) cb();
+      });
+
+      /* ============ 选人（圆桌 / 记牌区 / 记录 同步） ============ */
+      function selectPlayer(pid, scrollToDetail) {
+        state.selectedPlayer = pid;
+        staged = {}; picking = null; recCountExpanded = false;
+        save(); renderAll();
+        if (scrollToDetail) {
+          var d = document.getElementById('playerDetail');
+          if (d) d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+
+      /* ============ 渲染：顶部局次 ============ */
+      function renderTabs() {
+        var html = '';
+        for (var i = 1; i <= 5; i++) {
+          html += '<button type="button" class="game-tab' + (state.viewGame === i ? ' active' : '') +
+            (state.finished[i] ? ' done' : '') + '" data-game="' + i + '">第' + i + '局' +
+            (state.finished[i] ? '<span class="done-mark"> ✓</span>' : '') + '</button>';
+        }
+        document.getElementById('gameTabs').innerHTML = html;
+        document.getElementById('roundNo').textContent = state.roundNo;
+        document.getElementById('tlGameLabel').textContent = '第 ' + state.viewGame + ' 局';
+        var tabs = document.querySelectorAll('.game-tab');
+        for (var j = 0; j < tabs.length; j++) {
+          tabs[j].addEventListener('click', function () {
+            state.viewGame = parseInt(this.getAttribute('data-game'), 10);
+            staged = {}; picking = null; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+            save(); renderAll();
+          });
+        }
+      }
+
+      /* ============ 渲染：圆桌 + 个人明细 ============ */
+      function renderTable() {
+        var wrap = document.getElementById('tableWrap');
+        var old = wrap.querySelectorAll('.seat');
+        for (var i = old.length - 1; i >= 0; i--) old[i].remove();
+        TABLE_ORDER.forEach(function (pid, idx) {
+          var p = PLAYER_MAP[pid];
+          var ang = idx * 60 * Math.PI / 180; // 从正上方顺时针
+          var x = 50 + 41.5 * Math.sin(ang), y = 50 - 41.5 * Math.cos(ang);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'seat' + (p.ally ? ' ally' : '') + (state.selectedPlayer === pid ? ' selected' : '');
+          btn.style.left = x + '%'; btn.style.top = y + '%';
+          btn.setAttribute('aria-label', p.label + '，还剩 ' + playerLeft(state.viewGame, pid) + ' 张');
+          btn.innerHTML = '<span class="seat-name">' + esc(p.label) + '</span>' +
+            '<span class="seat-left">剩 <b>' + playerLeft(state.viewGame, pid) + '</b> 张</span>' +
+            '<span class="seat-tag">' + (pid === 'you' ? '你' : (p.ally ? '联邦' : '对手')) + '</span>';
+          btn.addEventListener('click', function () { selectPlayer(pid, true); });
+          wrap.appendChild(btn);
+        });
+
+        // 当前剩余一览：大数字 + 进度条，一眼看清每人还剩多少
+        var gn0 = state.viewGame, rg = '';
+        TABLE_ORDER.forEach(function (pid) {
+          var p = PLAYER_MAP[pid], left = playerLeft(gn0, pid);
+          var cls = left <= 6 ? 'critical' : (left <= 15 ? 'low' : '');
+          var pct = Math.max(0, Math.min(100, Math.round(left / HAND_SIZE * 100)));
+          rg += '<button type="button" class="remain-card ' + cls + (state.selectedPlayer === pid ? ' selected' : '') + '" data-remain="' + pid + '">' +
+            '<span class="rm-top"><span class="rm-name">' + esc(p.label) + '</span><span class="rm-tag">' +
+            (pid === 'you' ? '你自己' : (p.ally ? '联邦' : '对手')) + '</span></span>' +
+            '<span class="rm-num">' + left + '<small>张</small></span>' +
+            '<span class="rm-bar"><span class="rm-fill" style="width:' + pct + '%"></span></span>' +
+            '<span class="rm-played">已出 ' + playerPlayed(gn0, pid) + ' 张</span></button>';
+        });
+        var rgEl = document.getElementById('remainGrid');
+        rgEl.innerHTML = rg;
+        rgEl.querySelectorAll('[data-remain]').forEach(function (b) {
+          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-remain'), true); });
+        });
+
+        // 个人明细
+        var pid2 = state.selectedPlayer, p2 = PLAYER_MAP[pid2], gn = state.viewGame;
+        var agg = {}, mine = [];
+        g().plays.forEach(function (pl) {
+          if (pl.player !== pid2) return;
+          mine.push(pl);
+          for (var k in pl.cards) agg[k] = (agg[k] || 0) + pl.cards[k];
+        });
+        var html = '<div class="detail-head">' +
+          '<span class="d-name">' + esc(p2.label) + '</span>' +
+          '<span class="d-stat">' + (pid2 === 'you' ? '你自己' : (p2.ally ? '联邦队友' : '对手')) + '</span>' +
+          '<span class="d-stat">还剩 <b>' + playerLeft(gn, pid2) + '</b> 张</span>' +
+          '<span class="d-stat">已出 <b>' + playerPlayed(gn, pid2) + '</b> 张 · <b>' + mine.length + '</b> 手</span></div>';
+        if (mine.length === 0) {
+          html += '<div class="agg-empty">本局还没出过牌。</div>';
+        } else {
+          html += '<div class="detail-sub">已出全部 · 按点数汇总（牌面×张数）</div>';
+          html += '<div class="agg-text">' + esc(fmtCards(agg)) + '</div>';
+          html += '<div class="detail-sub">每一手明细 · 共 ' + mine.length + ' 手</div>';
+          html += '<div class="detail-plays">';
+          mine.slice().reverse().forEach(function (pl) {
+            html += '<div class="detail-play">第 ' + pl.seq + ' 手：<b>' + esc(fmtCards(pl.cards)) + '</b>（' + cardsTotal(pl.cards) + ' 张）</div>';
+          });
+          html += '</div>';
+        }
+        document.getElementById('playerDetail').innerHTML = html;
+      }
+
+      /* ============ 渲染：余牌矩阵 ============ */
+      function renderMatrix() {
+        var gn = state.viewGame, html = '';
+        RANKS.forEach(function (r) {
+          var left = rankLeft(gn, r.id), played = r.total - left;
+          var cls = left === 0 ? 'out' : (left <= 3 ? 'low' : '');
+          html += '<div class="mx-cell ' + cls + '"><span class="mx-rank ' + (r.cls ? r.cls + '-t' : '') + '">' + esc(r.label) +
+            '</span><span class="mx-left">' + left + '</span><span class="mx-sub">已出 ' + played + ' / 共 ' + r.total + '</span></div>';
+        });
+        document.getElementById('matrix').innerHTML = html;
+        document.getElementById('totalLeft').textContent = totalLeft(gn);
+      }
+
+      /* ============ 渲染：出牌记录 ============ */
+      function renderTimeline() {
+        var plays = g().plays;
+        document.getElementById('btnUndo').disabled = plays.length === 0;
+        if (plays.length === 0) {
+          document.getElementById('timeline').innerHTML = '<div class="tl-empty">本局还没有记录，用记牌区记第一手。</div>';
+          return;
+        }
+        // 每一手出完时，全场六人各自的剩余快照（回看当时最直观）
+        var gn = state.viewGame, runLeft = {}, snaps = {};
+        PLAYERS.forEach(function (p) { runLeft[p.id] = HAND_SIZE + tributeNet(gn, p.id); });
+        plays.forEach(function (pl) {
+          runLeft[pl.player] -= cardsTotal(pl.cards);
+          var snap = {}; PLAYERS.forEach(function (p) { snap[p.id] = runLeft[p.id]; });
+          snaps[pl.id] = snap;
+        });
+        var html = '';
+        plays.slice().reverse().forEach(function (pl) {
+          var snapHtml = '<div class="tl-snap"><span class="snap-label">当时剩</span>';
+          TABLE_ORDER.forEach(function (pid) {
+            snapHtml += '<span class="snap-chip' + (pid === pl.player ? ' played' : '') + '">' +
+              esc(PLAYER_MAP[pid].label) + ' <b>' + snaps[pl.id][pid] + '</b></span>';
+          });
+          snapHtml += '</div>';
+          html += '<div class="tl-item"><div class="tl-seq">' + pl.seq + '</div><div class="tl-main">' +
+            '<button type="button" class="tl-who link" data-who="' + pl.player + '">' + esc(PLAYER_MAP[pl.player].label) + '</button>' +
+            '<span class="tl-cards">' + esc(fmtCards(pl.cards)) + '</span>' +
+            '<div class="tl-meta">共 ' + cardsTotal(pl.cards) + ' 张</div>' + snapHtml + '</div>' +
+            '<button type="button" class="tl-del" data-del="' + pl.id + '">删除</button></div>';
+        });
+        var tl = document.getElementById('timeline');
+        tl.innerHTML = html;
+        tl.querySelectorAll('[data-who]').forEach(function (b) {
+          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-who'), true); });
+        });
+        tl.querySelectorAll('[data-del]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var id = this.getAttribute('data-del');
+            showConfirm('删除这一手记录？删掉后余牌会按删除后的账重新算。', '删除', true, function () {
+              var arr = g().plays;
+              for (var i = 0; i < arr.length; i++) if (arr[i].id === id) { arr.splice(i, 1); break; }
+              reSeq(state.viewGame); save(); renderAll(); toast('已删除');
+            });
+          });
+        });
+      }
+      function reSeq(gameNo) {
+        // 删除中间一手后，重算序号与“出完还剩”
+        var left = {}; PLAYERS.forEach(function (p) { left[p.id] = HAND_SIZE + tributeNet(gameNo, p.id); });
+        state.games[gameNo].plays.forEach(function (pl, i) {
+          pl.seq = i + 1;
+          left[pl.player] -= cardsTotal(pl.cards);
+          pl.leftAfter = left[pl.player];
+        });
+      }
+
+      /* ============ 渲染：记牌区 ============ */
+      function pickMax(rankId) {
+        var byRank = rankLeft(state.viewGame, rankId);
+        var byHand = playerLeft(state.viewGame, state.selectedPlayer);
+        return Math.max(0, Math.min(byRank, byHand));
+      }
+      // 点张数直接录入一手，不再需要点「记下」确认；记错了在出牌记录里删除
+      function recordPlayNow(rankId, n) {
+        var pid = state.selectedPlayer, gn = state.viewGame;
+        var cards = {}; cards[rankId] = n;
+        var play = { id: uid(), player: pid, cards: cards, seq: g().plays.length + 1, leftAfter: 0 };
+        play.leftAfter = playerLeft(gn, pid) - n;
+        g().plays.push(play);
+        picking = null; recCountExpanded = false; staged = {};
+        save(); renderAll();
+        toast('已记：' + PLAYER_MAP[pid].label + ' ' + fmtCards(cards));
+      }
+      function renderRecorder() {
+        var pid = state.selectedPlayer;
+        document.getElementById('recPlayerName').textContent = PLAYER_MAP[pid].label;
+        document.getElementById('recPlayerLeft').textContent = playerLeft(state.viewGame, pid);
+
+        var ph = '';
+        PLAYERS.forEach(function (p) {
+          ph += '<button type="button" class="rec-person' + (pid === p.id ? ' active' : '') + '" data-p="' + p.id + '">' +
+            esc(p.label) + '<span class="rp-left">' + playerLeft(state.viewGame, p.id) + '</span></button>';
+        });
+        var rp = document.getElementById('recPeople');
+        rp.innerHTML = ph;
+        rp.querySelectorAll('[data-p]').forEach(function (b) {
+          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-p')); });
+        });
+
+        var ch = '';
+        RANKS.forEach(function (r) {
+          var left = rankLeft(state.viewGame, r.id);
+          ch += '<button type="button" class="rec-card' + (picking === r.id ? ' picking' : '') + (left === 0 ? ' spent' : '') +
+            '" data-card="' + r.id + '"><span class="rc-rank ' + (r.cls ? r.cls + '-t' : '') + '">' + esc(r.label) + '</span>' +
+            '<span class="rc-left">剩 ' + left + '</span></button>';
+        });
+        var rc = document.getElementById('recCards');
+        rc.innerHTML = ch;
+        rc.querySelectorAll('[data-card]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var rid = this.getAttribute('data-card');
+            picking = (picking === rid) ? null : rid;
+            recCountExpanded = false;
+            renderRecorder();
+          });
+        });
+
+        // 张数选择：1–12 整齐网格，更多才展开；点数字直接录入，不用再确认
+        var pk = document.getElementById('recPicker');
+        if (picking) {
+          var max = pickMax(picking), r = RANK_MAP[picking];
+          pk.innerHTML = countPickerHTML(r.label + ' 出几张？点数字直接记下', max, recCountExpanded, false);
+          pk.querySelectorAll('[data-pnum]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              recordPlayNow(picking, parseInt(this.getAttribute('data-pnum'), 10));
+            });
+          });
+          pk.querySelectorAll('[data-pmore]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              recCountExpanded = this.getAttribute('data-pmore') === '1';
+              renderRecorder();
+            });
+          });
+          pk.querySelectorAll('[data-pcancel]').forEach(function (b) {
+            b.addEventListener('click', function () { picking = null; recCountExpanded = false; renderRecorder(); });
+          });
+        } else pk.innerHTML = '';
+      }
+      document.getElementById('btnUndo').addEventListener('click', function () {
+        var arr = g().plays;
+        if (!arr.length) return;
+        var last = arr.pop();
+        save(); renderAll();
+        toast('已撤销：' + PLAYER_MAP[last.player].label + ' ' + fmtCards(last.cards));
+      });
+
+      /* ============ 进贡 / 还贡 ============ */
+      function tribPickMax(area, rankId) {
+        var used = 0;
+        g().tributes.forEach(function (t) {
+          used += (t.cards[rankId] || 0) + ((t.ret || {})[rankId] || 0);
+        });
+        var inStage = (trib.give[rankId] || 0) + (trib.ret[rankId] || 0);
+        var cap = RANK_MAP[rankId].total - used - inStage + ((area === 'give' ? trib.give : trib.ret)[rankId] || 0);
+        return Math.max(0, cap);
+      }
+      function miniGridHTML(area, store) {
+        var html = '<div class="mini-cards">';
+        TRIB_RANKS.forEach(function (r) {
+          var isPick = trib.pickArea === area && trib.pickRank === r.id;
+          html += '<button type="button" class="mini-card' + (isPick ? ' picking' : '') + '" data-area="' + area + '" data-rank="' + r.id + '">' +
+            '<span class="' + (r.cls ? r.cls + '-t' : '') + '">' + esc(r.label) + '</span>' +
+            (store[r.id] ? '<span class="staged-badge">×' + store[r.id] + '</span>' : '') + '</button>';
+        });
+        return html + '</div>';
+      }
+      function tribPickerHTML(area) {
+        if (trib.pickArea !== area || !trib.pickRank) return '';
+        var max = tribPickMax(area, trib.pickRank), r = RANK_MAP[trib.pickRank];
+        var has = !!((area === 'give' ? trib.give : trib.ret)[trib.pickRank]);
+        return countPickerHTML(r.label + ' 几张？', max, tribCountExpanded, has);
+      }
+      function peopleChips(field, activeId) {
+        var html = '<div class="chip-row">';
+        PLAYERS.forEach(function (p) {
+          html += '<button type="button" class="pick-chip' + (activeId === p.id ? ' active' : '') + '" data-field="' + field + '" data-p="' + p.id + '">' + esc(p.label) + '</button>';
+        });
+        return html + '</div>';
+      }
+      function renderTribute() {
+        var panel = document.getElementById('tributePanel');
+        var isClassic = isClassicType(trib.type), isBuy = isBuyType(trib.type), isSong = isSongType(trib.type);
+        var classicLocked = isClassic && state.viewGame < 2;
+        var head = '<div class="panel-head"><h2>进贡区</h2><span class="hint">第 ' + state.viewGame + ' 局</span></div>' +
+          '<div class="trib-note">进贡：点贡 / 烧贡 / 闷贡 / 落贡，第 2 局起记，鹰不参与进贡，只有落贡接着选还贡。另加买 3 买 4、联邦送 3 送 4，第 1 局也能记；买 / 送选类型后自动带上 1 张对应的 3 / 4，点牌可改张数。</div>';
+        var classicChips = '<div class="chip-row">';
+        TRIB_TYPES.forEach(function (t) {
+          if (!isClassicType(t.id)) return;
+          classicChips += '<button type="button" class="pick-chip' + (trib.type === t.id ? ' active' : '') + '" data-ttype="' + t.id + '">' + t.label + '</button>';
+        });
+        classicChips += '</div>';
+        var buySongChips = '<div class="chip-row">';
+        TRIB_TYPES.forEach(function (t) {
+          if (isClassicType(t.id)) return;
+          buySongChips += '<button type="button" class="pick-chip p-amber' + (trib.type === t.id ? ' active' : '') + '" data-ttype="' + t.id + '">' + t.label + '</button>';
+        });
+        buySongChips += '</div>';
+
+        var giverLabel = isClassic ? '进贡方（交贡的人）' : '给出方（卖 / 送出 3·4 的人）';
+        var receiverLabel = isClassic ? '收贡方（吃贡的人）' : '拿到方（买 / 收到 3·4 的人）';
+        var giveLabel = isClassic ? '进贡的牌（交手里最大的牌，鹰不能进贡，点牌选张数）' : '给出的牌（一般就是那张 3 或 4，点牌选张数）';
+
+        var html = head +
+          '<div class="trib-group"><div class="trib-label">进贡（第 2 局起）' + (state.viewGame < 2 ? ' · 本局第 1 局，暂不能记进贡' : '') + '</div>' + classicChips + '</div>' +
+          '<div class="trib-group"><div class="trib-label">买 3 买 4 · 送 3 送 4（第 1 局也能记）</div>' + buySongChips + '</div>' +
+          (classicLocked ? '<div class="trib-note" style="color:var(--red);font-weight:600;">第 1 局无进贡，点贡 / 烧贡 / 闷贡 / 落贡从第 2 局起再记；本局先用下面的买 3 买 4、送 3 送 4。</div>' : '') +
+          '<div class="trib-group"><div class="trib-label">' + giverLabel + '</div>' + peopleChips('giver', trib.giver) + '</div>' +
+          '<div class="trib-group"><div class="trib-label">' + receiverLabel + '</div>' + peopleChips('receiver', trib.receiver) + '</div>' +
+          '<div class="trib-group"><div class="trib-label">' + giveLabel + '</div>' +
+            miniGridHTML('give', trib.give) + tribPickerHTML('give') +
+            '<div class="trib-staged">' + (cardsTotal(trib.give) ? chipsHTML(trib.give, true, 'give') : '<span class="agg-empty">还没选牌</span>') + '</div></div>';
+
+        if (trib.type === 'luo') {
+          html += '<div class="trib-group"><div class="trib-label">还贡的小牌（收贡方还给进贡方同等数量的小牌，一般 3、4、5，点牌选张数）</div>' +
+            miniGridHTML('ret', trib.ret) + tribPickerHTML('ret') +
+            '<div class="trib-staged">' + (cardsTotal(trib.ret) ? chipsHTML(trib.ret, true, 'ret') : '<span class="agg-empty">还没选还贡的牌</span>') + '</div></div>';
+        } else if (isBuy) {
+          html += '<div class="trib-group"><div class="trib-label">换回的牌（买方付给给出方的牌；花钱买、没用牌换就不用选）</div>' +
+            miniGridHTML('ret', trib.ret) + tribPickerHTML('ret') +
+            '<div class="trib-staged">' + (cardsTotal(trib.ret) ? chipsHTML(trib.ret, true, 'ret') : '<span class="agg-empty">还没选换回的牌</span>') + '</div></div>';
+        }
+        if (isSong) {
+          html += '<div class="trib-note">送 3 送 4 只能联邦之间送。</div>';
+        }
+        html += '<button type="button" class="btn-trib" id="btnTrib">记下这笔' + TRIB_MAP[trib.type].label + '</button>' +
+          (tribErr ? '<div class="form-err">' + esc(tribErr) + '</div>' : '') +
+          tribListHTML();
+        panel.innerHTML = html;
+        bindTribute(panel);
+      }
+      function tribListHTML() {
+        var ts = g().tributes;
+        if (!ts.length) return '';
+        var html = '<div class="trib-list">';
+        ts.slice().reverse().forEach(function (t) {
+          html += '<div class="trib-item"><div class="t-head"><span class="trib-type">' + TRIB_MAP[t.type].label + '</span>' +
+            '<span class="t-who">' + esc(PLAYER_MAP[t.giver].label) + ' → ' + esc(PLAYER_MAP[t.receiver].label) + '</span>' +
+            '<button type="button" class="tl-del" data-tdel="' + t.id + '">删除</button></div>' +
+            '<div class="t-cards">' + esc(fmtCards(t.cards)) + '（' + cardsTotal(t.cards) + ' 张）</div>' +
+            (cardsTotal(t.ret || {}) ? '<div class="t-ret">' + (isBuyType(t.type) ? '换回：' : (t.type === 'luo' ? '还贡：' : '付出：')) + esc(fmtCards(t.ret)) + '（' + cardsTotal(t.ret) + ' 张）</div>' : '') +
+            '</div>';
+        });
+        return html + '</div>';
+      }
+      function bindTribute(panel) {
+        panel.querySelectorAll('[data-ttype]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            trib.type = this.getAttribute('data-ttype');
+            trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false;
+            trib.give = {};
+            if (TRIB_EXPECT[trib.type]) trib.give[TRIB_EXPECT[trib.type]] = 1;
+            if (isSongType(trib.type) && PLAYER_MAP[trib.giver].ally !== PLAYER_MAP[trib.receiver].ally) {
+              // 送只能联邦之间送：默认改成一位联邦队友送给拿到方
+              for (var i = 0; i < PLAYERS.length; i++) {
+                if (PLAYERS[i].id !== trib.receiver && PLAYERS[i].ally === PLAYER_MAP[trib.receiver].ally) { trib.giver = PLAYERS[i].id; break; }
+              }
+            }
+            tribErr = ''; renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-field]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            trib[this.getAttribute('data-field')] = this.getAttribute('data-p');
+            tribErr = ''; renderTribute();
+          });
+        });
+        panel.querySelectorAll('.mini-card').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var area = this.getAttribute('data-area'), rank = this.getAttribute('data-rank');
+            if (trib.pickArea === area && trib.pickRank === rank) { trib.pickArea = null; trib.pickRank = null; }
+            else { trib.pickArea = area; trib.pickRank = rank; }
+            tribCountExpanded = false;
+            renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-pnum]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var v = parseInt(this.getAttribute('data-pnum'), 10), store = trib.pickArea === 'give' ? trib.give : trib.ret;
+            if (v > 0) store[trib.pickRank] = v;
+            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; tribErr = ''; renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-pmore]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            tribCountExpanded = this.getAttribute('data-pmore') === '1';
+            renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-pclear]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var store = trib.pickArea === 'give' ? trib.give : trib.ret;
+            delete store[trib.pickRank];
+            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-pcancel]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-remove]').forEach(function (c) {
+          c.addEventListener('click', function () {
+            var store = this.getAttribute('data-area') === 'give' ? trib.give : trib.ret;
+            delete store[this.getAttribute('data-remove')]; renderTribute();
+          });
+        });
+        panel.querySelectorAll('[data-tdel]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var id = this.getAttribute('data-tdel');
+            showConfirm('删除这笔进贡 / 买 / 送记录？', '删除', true, function () {
+              var arr = g().tributes;
+              for (var i = 0; i < arr.length; i++) if (arr[i].id === id) { arr.splice(i, 1); break; }
+              reSeq(state.viewGame); save(); renderAll(); toast('已删除记录');
+            });
+          });
+        });
+        var btn = document.getElementById('btnTrib');
+        if (btn) btn.addEventListener('click', submitTribute);
+      }
+      function submitTribute() {
+        if (isClassicType(trib.type) && state.viewGame < 2) { tribErr = '第 1 局无进贡，点贡 / 烧贡 / 闷贡 / 落贡从第 2 局起再记。'; renderTribute(); return; }
+        if (trib.giver === trib.receiver) { tribErr = isClassicType(trib.type) ? '进贡方和收贡方不能是同一个人。' : '给出方和拿到方不能是同一个人。'; renderTribute(); return; }
+        if (isSongType(trib.type) && PLAYER_MAP[trib.giver].ally !== PLAYER_MAP[trib.receiver].ally) { tribErr = '送3送4只能联邦之间送：给出方和拿到方得是同一联邦。'; renderTribute(); return; }
+        if (cardsTotal(trib.give) === 0) { tribErr = isClassicType(trib.type) ? '先点牌、选张数，把进贡的牌选上。' : '先点牌、选张数，把给出的牌选上。'; renderTribute(); return; }
+        g().tributes.push({
+          id: uid(), type: trib.type, giver: trib.giver, receiver: trib.receiver,
+          cards: Object.assign({}, trib.give), ret: tribNeedsReturn(trib.type) ? Object.assign({}, trib.ret) : {}
+        });
+        var txt = TRIB_MAP[trib.type].label + '：' + PLAYER_MAP[trib.giver].label + ' → ' + PLAYER_MAP[trib.receiver].label + ' ' + fmtCards(trib.give);
+        trib.give = {};
+        if (TRIB_EXPECT[trib.type]) trib.give[TRIB_EXPECT[trib.type]] = 1;
+        trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+        reSeq(state.viewGame); save(); renderAll();
+        toast('已记' + txt);
+      }
+      /* ============ 轮次操作（页脚按钮，一次绑定） ============ */
+      function doneCount() { var n = 0; for (var d = 1; d <= 5; d++) if (state.finished[d]) n++; return n; }
+      document.getElementById('btnNewRound').addEventListener('click', function () {
+        var n = doneCount(), all = n === 5;
+        showConfirm(all ? '5 局已打满，开新一轮？本轮记录会清掉，从第 1 局重新开始。' : '本轮只打完了 ' + n + ' 局，确定现在就开新一轮？本轮记录会清掉。', '开新一轮', false, function () {
+          var oldRound = state.roundNo, keepSel = state.selectedPlayer;
+          state = freshState();
+          state.roundNo = oldRound + 1;
+          state.selectedPlayer = keepSel;
+          staged = {}; picking = null;
+          trib.give = {}; trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+          save(); renderAll(); toast('已开启第 ' + state.roundNo + ' 轮');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+      document.getElementById('btnResetAll').addEventListener('click', function () {
+        showConfirm('清空全部记录重新开始？清掉就找不回来了。', '全部清空', true, function () {
+          var sel = state.selectedPlayer;
+          state = freshState(); state.selectedPlayer = sel;
+          staged = {}; picking = null;
+          trib.give = {}; trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+          save(); renderAll(); toast('已清空，从第 1 轮第 1 局开始');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      /* ============ 顶部按钮 ============ */
+      document.getElementById('btnEndGame').addEventListener('click', function () {
+        var gn = state.viewGame;
+        if (state.finished[gn]) { toast('第 ' + gn + ' 局已经结束'); return; }
+        showConfirm('结束第 ' + gn + ' 局？结束后还能切回来看，' + (gn < 5 ? '并自动跳到第 ' + (gn + 1) + ' 局。' : '本轮 5 局就打满了，用页面下方「开启新一轮」开始下一轮。'), '结束本局', false, function () {
+          state.finished[gn] = true;
+          if (gn < 5) state.viewGame = gn + 1;
+          staged = {}; picking = null;
+          save(); renderAll();
+          toast('第 ' + gn + ' 局已结束');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      /* ============ 总渲染 ============ */
+      function renderAll() {
+        renderTabs(); renderTable(); renderMatrix(); renderTimeline(); renderRecorder(); renderTribute();
+      }
+      renderAll();
+    </script>
+  </body>
+</html>
