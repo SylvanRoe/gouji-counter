@@ -1,4 +1,3 @@
-<!-- Gouji card counter | Copyright (c) 2026 Brian Lee (SylvanRoe) | Strict non-commercial license: no commercial use; personal use only with attribution to Brian Lee (SylvanRoe). See LICENSE. -->
 <!doctype html>
 <html lang="zh-CN">
   <head>
@@ -66,7 +65,7 @@
       button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
       h2 { font-size: 16px; margin: 0; font-weight: 700; }
 
-      .content { padding: 12px 12px 300px; max-width: 760px; margin: 0 auto; }
+      .content { padding: 12px 12px 28px; max-width: 760px; margin: 0 auto; }
 
       /* ---------- top bar ---------- */
       .topbar {
@@ -99,6 +98,7 @@
         box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px;
       }
       .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+      .panel-head h2 { white-space: nowrap; flex: 0 0 auto; }
       .panel-head .hint { color: var(--muted); font-size: 13px; }
       .panel-head .hint b { color: var(--ink); }
 
@@ -127,29 +127,6 @@
       .seat .seat-left { font-size: 12px; color: var(--muted); display: block; margin-top: 1px; }
       .seat .seat-left b { color: var(--ink); font-size: 23px; font-weight: 800; line-height: 1.1; }
 
-      /* ---------- 当前剩余一览（主视图） ---------- */
-      .remain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-      .remain-card {
-        background: var(--panel-2); border: 2px solid var(--line); border-radius: 12px;
-        padding: 9px 10px 10px; text-align: left; width: 100%;
-      }
-      .remain-card:active { transform: scale(.97); }
-      .remain-card.selected { border-color: var(--amber); background: var(--amber-soft); }
-      .remain-card .rm-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-      .remain-card .rm-name { font-weight: 800; font-size: 16px; }
-      .remain-card .rm-tag { font-size: 11px; color: var(--muted); font-weight: 600; }
-      .remain-card .rm-num { font-size: 36px; font-weight: 800; line-height: 1.05; display: block; margin-top: 2px; }
-      .remain-card .rm-num small { font-size: 14px; font-weight: 600; color: var(--muted); margin-left: 2px; }
-      .remain-card .rm-bar { height: 6px; border-radius: 999px; background: var(--line); margin-top: 7px; overflow: hidden; }
-      .remain-card .rm-fill { height: 100%; border-radius: 999px; background: var(--green); transition: width .25s; }
-      .remain-card.low .rm-num { color: var(--amber); }
-      .remain-card.low .rm-fill { background: var(--amber); }
-      .remain-card.critical .rm-num { color: var(--red); }
-      .remain-card.critical .rm-fill { background: var(--red); }
-      .remain-card .rm-played { font-size: 12px; color: var(--muted); display: block; margin-top: 5px; }
-      @media (max-width: 380px) { .remain-grid { grid-template-columns: repeat(2, 1fr); } }
-      /* 手机上圆桌座位本身就是剩余主视图（大数字、同顺序、同点选），一览网格只在宽屏显示，避免被底部记牌区遮挡 */
-      @media (max-width: 700px) { .remain-grid { display: none; } }
       .seat .seat-tag { font-size: 11px; display: inline-block; margin-top: 2px; padding: 0 7px; border-radius: 999px; background: var(--chip); color: var(--muted); font-weight: 600; }
       .seat.ally .seat-tag { background: #e2f2e7; color: var(--green-deep); }
       @media (prefers-color-scheme: dark) { .seat.ally .seat-tag { background: #173d27; color: #7fd6a4; } }
@@ -266,56 +243,68 @@
       .trib-item .t-ret { margin-top: 2px; color: var(--muted); font-size: 13.5px; }
       .form-err { color: var(--red); font-weight: 600; font-size: 13.5px; margin-top: 6px; min-height: 0; }
 
+      /* ---------- 进贡 / 买送 分区 ---------- */
+      .panel-trib { border-top: 4px solid var(--green-deep); }
+      .panel-buysong { border-top: 4px solid var(--amber); }
+      .zone-note { font-size: 13px; color: var(--muted); background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; line-height: 1.55; }
+      .zone-note b { color: var(--ink); }
+      .locked-banner { background: var(--amber-soft); border: 1.5px dashed var(--amber); border-radius: 10px; padding: 12px 10px; text-align: center; font-weight: 700; margin: 6px 0 4px; line-height: 1.5; }
+      .locked-banner span { display: block; font-weight: 600; font-size: 13px; color: var(--muted); margin-top: 2px; }
+      .type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .type-grid .pick-chip, .type-grid-2 .pick-chip { padding: 10px 2px; text-align: center; border-radius: 10px; font-size: 15px; }
+      .type-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .people-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .people-grid .pick-chip { padding: 8px 2px; text-align: center; border-radius: 9px; }
+      .flow-arrow { text-align: center; color: var(--muted); font-weight: 800; font-size: 13px; margin: -2px 0 8px; letter-spacing: .08em; }
+      .bs-row { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: start; margin-bottom: 8px; }
+      .bs-row:last-child { margin-bottom: 0; }
+      .bs-tag { font-size: 12px; font-weight: 800; text-align: center; padding: 9px 0; border-radius: 8px; background: var(--amber-soft); color: var(--ink); border: 1px solid var(--amber); }
+      .bs-tag.song { background: var(--chip); border-color: var(--line); }
+      .btn-buysong { width: 100%; margin-top: 4px; padding: 12px; border-radius: 10px; background: var(--amber); color: #231a04; font-weight: 800; font-size: 16px; }
+      .btn-buysong:active { filter: brightness(.92); }
+      .ret-box { background: var(--amber-soft); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+      .list-head { font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 2px; }
+
       /* ---------- 轮次操作（页脚小按钮） ---------- */
       .round-actions { display: flex; gap: 8px; margin: 2px 0 6px; }
       .btn-newround { flex: 1; padding: 11px; border-radius: 10px; border: 2px solid var(--green); color: var(--green-deep); font-weight: 800; font-size: 15px; background: var(--panel); }
       @media (prefers-color-scheme: dark) { .btn-newround { color: #7fd6a4; } }
       .btn-reset { padding: 11px 14px; border-radius: 10px; color: var(--red); font-weight: 600; font-size: 13.5px; }
 
-      /* ---------- recorder ---------- */
-      .recorder {
-        position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-        background: var(--rec-bg); border-top: 1.5px solid var(--line);
-        box-shadow: 0 -6px 22px rgba(15, 35, 20, .14);
-        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-        max-height: 62vh; overflow-y: auto;
+      /* ---------- 玩家弹窗（点牌桌座位打开：看已出牌 + 记牌） ---------- */
+      .sheet-mask { position: fixed; inset: 0; background: rgba(10, 15, 10, .5); display: none; z-index: 80; }
+      .sheet-mask.open { display: block; }
+      .sheet {
+        position: absolute; left: 0; right: 0; bottom: 0; max-height: 88dvh; overflow-y: auto;
+        background: var(--panel); border-radius: 18px 18px 0 0; box-shadow: var(--shadow);
+        padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
       }
-      .rec-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-      .rec-head .rec-title { font-size: 15px; color: var(--muted); font-weight: 600; }
-      .rec-head .rec-title b { color: var(--ink); font-size: 17px; }
-      .rec-head .rec-left { color: var(--muted); font-size: 13px; }
-      .rec-head .rec-left b { color: var(--green-deep); font-size: 15px; }
-      @media (prefers-color-scheme: dark) { .rec-head .rec-left b { color: #7fd6a4; } }
-      .rec-people { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 9px; }
-      .rec-person { padding: 7px 1px; border-radius: 9px; background: var(--chip); color: var(--chip-ink); font-weight: 700; font-size: 13.5px; border: 2px solid transparent; text-align: center; white-space: nowrap; }
-      .rec-person .rp-left { font-size: 12px; font-weight: 800; color: var(--muted); margin-left: 2px; }
-      .rec-person.active { background: var(--green); color: #fff; border-color: var(--green-deep); }
-      .rec-person.active .rp-left { color: #ffe9a8; }
-      .rec-cards { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
-      .rec-card { background: var(--panel-2); border: 1.5px solid var(--line); border-radius: 9px; padding: 6px 1px 4px; text-align: center; position: relative; }
-      .rec-card .rc-rank { font-weight: 800; font-size: 15.5px; display: block; line-height: 1.15; }
-      .rec-card .rc-left { font-size: 11px; color: var(--muted); display: block; }
-      .rec-card .staged-badge {
-        position: absolute; top: -7px; right: -4px; background: var(--amber); color: #231a04;
-        font-size: 12px; font-weight: 800; border-radius: 999px; min-width: 21px; height: 21px;
-        display: flex; align-items: center; justify-content: center; padding: 0 5px; z-index: 2;
+      @media (min-width: 700px) {
+        .sheet-mask.open { display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .sheet { position: static; width: min(540px, 94vw); border-radius: 18px; max-height: 88dvh; }
       }
+      .sheet-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+      .sheet-head .sh-name { font-size: 21px; font-weight: 800; }
+      .sheet-head .sh-tag { font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+      .sheet-head .sh-stats { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+      .sheet-head .sh-stats b { color: var(--ink); }
+      .sheet-head .sh-left { margin-left: auto; text-align: right; }
+      .sheet-head .sh-left b { font-size: 30px; font-weight: 800; line-height: 1; color: var(--green-deep); }
+      @media (prefers-color-scheme: dark) { .sheet-head .sh-left b { color: #7fd6a4; } }
+      .sheet-head .sh-left span { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+      .sheet-close { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background: var(--chip); color: var(--chip-ink); font-size: 19px; font-weight: 700; line-height: 1; }
+      .sheet-sub { font-size: 13px; font-weight: 700; color: var(--muted); margin: 12px 0 7px; }
+      .sheet-plays { display: flex; flex-direction: column; gap: 5px; }
+      .rec-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+      .rec-card { background: var(--panel-2); border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 1px 7px; text-align: center; position: relative; min-height: 52px; }
+      .rec-card .rc-rank { font-weight: 800; font-size: 17px; display: block; line-height: 1.15; }
+      .rec-card .rc-left { font-size: 11.5px; color: var(--muted); display: block; margin-top: 2px; }
       .rec-card.picking { border-color: var(--amber); background: var(--amber-soft); }
       .rec-card.spent { opacity: .45; }
-      .staged-row { display: flex; gap: 7px; align-items: stretch; margin-top: 10px; }
-      .staged { flex: 1; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-height: 44px; background: var(--panel-2); border: 1px dashed var(--line); border-radius: 10px; padding: 5px 8px; }
-      .staged-empty { color: var(--muted); font-size: 13px; }
-      .staged .card-chip { cursor: pointer; }
-      .btn-clear { padding: 0 13px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel); font-weight: 600; }
-      .btn-record { padding: 0 20px; border-radius: 10px; background: var(--green); color: #fff; font-weight: 800; font-size: 16.5px; min-height: 44px; }
-      .btn-record:active { background: var(--green-deep); }
-      .btn-record:disabled { opacity: .45; }
-      .rec-direct-hint { margin-top: 9px; font-size: 13px; color: var(--muted); line-height: 1.5; }
-      .rec-direct-hint b { color: var(--ink); }
 
       /* ---------- toast & modal ---------- */
       .toast {
-        position: fixed; left: 50%; transform: translateX(-50%) translateY(8px); bottom: 66vh;
+        position: fixed; left: 50%; transform: translateX(-50%) translateY(-8px); top: 16px;
         background: #20291f; color: #fff; padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
         opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 90; max-width: 88vw; text-align: center;
       }
@@ -332,19 +321,8 @@
 
       /* ---------- desktop ---------- */
       @media (min-width: 1024px) {
-        .content { max-width: none; margin: 0; margin-right: 384px; padding: 20px 22px 40px; }
-        .recorder {
-          left: auto; width: 384px; top: 0; max-height: none; height: 100dvh;
-          border-top: none; border-left: 1.5px solid var(--line);
-          padding: 18px 16px; display: flex; flex-direction: column;
-        }
-        .rec-cards { grid-template-columns: repeat(4, 1fr); gap: 7px; }
-        .rec-card { padding: 10px 2px 8px; }
-        .rec-card .rc-rank { font-size: 17px; }
-        .rec-people { grid-template-columns: repeat(3, 1fr); gap: 7px; }
-        .rec-person { padding: 9px 2px; font-size: 14.5px; }
-        .staged { min-height: 52px; }
-        .toast { bottom: auto; top: 22px; }
+        .content { max-width: 900px; margin: 0 auto; padding: 20px 22px 40px; }
+        .toast { top: 22px; }
       }
       @media (min-width: 1400px) {
         .wide-split { display: grid; grid-template-columns: minmax(430px, 1.02fr) minmax(400px, .98fr); gap: 14px; align-items: start; }
@@ -365,13 +343,11 @@
       </div>
 
       <section class="panel" aria-label="所有人剩余">
-        <div class="panel-head"><h2>现在每人还剩</h2><span class="hint">点任意一家，记牌自动换人</span></div>
+        <div class="panel-head"><h2>牌桌</h2><span class="hint">点任意一家，弹窗记牌、看已出牌</span></div>
         <div class="table-wrap" id="tableWrap">
           <div class="felt"></div>
           <div class="felt-center"><b>312 张</b>每人 52 张 · 3 只有 6 张</div>
         </div>
-        <div class="remain-grid" id="remainGrid"></div>
-        <div class="detail" id="playerDetail"></div>
       </section>
 
       <div class="wide-split">
@@ -381,7 +357,9 @@
             <div class="matrix" id="matrix"></div>
           </section>
 
-          <section class="panel" id="tributePanel" aria-label="进贡买3买4送3送4"></section>
+          <section class="panel panel-trib" id="tributePanel" aria-label="进贡区"></section>
+
+          <section class="panel panel-buysong" id="buySongPanel" aria-label="买送34区"></section>
         </div>
 
         <div class="col-b">
@@ -401,16 +379,11 @@
       </div>
     </div>
 
-    <aside class="recorder" id="recorder" aria-label="记牌区">
-      <div class="rec-head">
-        <span class="rec-title">记牌 · <b id="recPlayerName">你</b></span>
-        <span class="rec-left">还剩 <b id="recPlayerLeft">52</b> 张</span>
+    <div class="sheet-mask" id="sheetMask">
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="玩家详情与记牌">
+        <div id="sheetBody"></div>
       </div>
-      <div class="rec-people" id="recPeople"></div>
-      <div class="rec-cards" id="recCards"></div>
-      <div id="recPicker"></div>
-      <div class="rec-direct-hint"><b>点牌面 → 点张数，直接记下</b>，不用再点确定；记错了在出牌记录里删掉那一手就行。</div>
-    </aside>
+    </div>
 
     <div class="toast" id="toast" role="status"></div>
 
@@ -503,9 +476,12 @@
       var staged = {};        // 兼容旧逻辑保留（记牌已改为点张数直接录入）
       var picking = null;     // 记牌区正在选张数的牌
       var recCountExpanded = false;  // 记牌区张数是否展开到 12 以上
-      var tribCountExpanded = false; // 进贡区张数是否展开到 12 以上
-      var trib = { type: 'mai3', giver: 'duimen', receiver: 'you', give: { '3': 1 }, ret: {}, pickArea: null, pickRank: null };
-      var tribErr = '';
+      var tribCExpanded = false; // 进贡区张数是否展开
+      var tribBExpanded = false; // 买送区张数是否展开
+      var tribC = { type: 'dian', giver: 'duimen', receiver: 'you', give: {}, ret: {}, pickArea: null, pickRank: null };
+      var tribB = { type: 'mai3', giver: 'duimen', receiver: 'you', give: { '3': 1 }, ret: {}, pickArea: null, pickRank: null };
+      var tribCErr = '';
+      var tribBErr = '';
 
       function save() {
         try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 忽略 */ }
@@ -601,16 +577,25 @@
         var cb = modalCb; closeModal(); if (cb) cb();
       });
 
-      /* ============ 选人（圆桌 / 记牌区 / 记录 同步） ============ */
-      function selectPlayer(pid, scrollToDetail) {
+      /* ============ 玩家弹窗（点牌桌座位 / 记录里的人名打开） ============ */
+      var sheetOpen = false;
+      function openPlayer(pid) {
         state.selectedPlayer = pid;
         staged = {}; picking = null; recCountExpanded = false;
-        save(); renderAll();
-        if (scrollToDetail) {
-          var d = document.getElementById('playerDetail');
-          if (d) d.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        sheetOpen = true;
+        save(); renderAll(); renderSheet();
+        document.getElementById('sheetMask').classList.add('open');
       }
+      function closeSheet() {
+        sheetOpen = false; picking = null; recCountExpanded = false;
+        document.getElementById('sheetMask').classList.remove('open');
+      }
+      document.getElementById('sheetMask').addEventListener('click', function (e) {
+        if (e.target === this) closeSheet();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sheetOpen) closeSheet();
+      });
 
       /* ============ 渲染：顶部局次 ============ */
       function renderTabs() {
@@ -627,7 +612,7 @@
         for (var j = 0; j < tabs.length; j++) {
           tabs[j].addEventListener('click', function () {
             state.viewGame = parseInt(this.getAttribute('data-game'), 10);
-            staged = {}; picking = null; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+            staged = {}; picking = null; tribC.pickArea = null; tribC.pickRank = null; tribCErr = ''; tribB.pickArea = null; tribB.pickRank = null; tribBErr = '';
             save(); renderAll();
           });
         }
@@ -650,55 +635,10 @@
           btn.innerHTML = '<span class="seat-name">' + esc(p.label) + '</span>' +
             '<span class="seat-left">剩 <b>' + playerLeft(state.viewGame, pid) + '</b> 张</span>' +
             '<span class="seat-tag">' + (pid === 'you' ? '你' : (p.ally ? '联邦' : '对手')) + '</span>';
-          btn.addEventListener('click', function () { selectPlayer(pid, true); });
+          btn.addEventListener('click', function () { openPlayer(pid); });
           wrap.appendChild(btn);
         });
 
-        // 当前剩余一览：大数字 + 进度条，一眼看清每人还剩多少
-        var gn0 = state.viewGame, rg = '';
-        TABLE_ORDER.forEach(function (pid) {
-          var p = PLAYER_MAP[pid], left = playerLeft(gn0, pid);
-          var cls = left <= 6 ? 'critical' : (left <= 15 ? 'low' : '');
-          var pct = Math.max(0, Math.min(100, Math.round(left / HAND_SIZE * 100)));
-          rg += '<button type="button" class="remain-card ' + cls + (state.selectedPlayer === pid ? ' selected' : '') + '" data-remain="' + pid + '">' +
-            '<span class="rm-top"><span class="rm-name">' + esc(p.label) + '</span><span class="rm-tag">' +
-            (pid === 'you' ? '你自己' : (p.ally ? '联邦' : '对手')) + '</span></span>' +
-            '<span class="rm-num">' + left + '<small>张</small></span>' +
-            '<span class="rm-bar"><span class="rm-fill" style="width:' + pct + '%"></span></span>' +
-            '<span class="rm-played">已出 ' + playerPlayed(gn0, pid) + ' 张</span></button>';
-        });
-        var rgEl = document.getElementById('remainGrid');
-        rgEl.innerHTML = rg;
-        rgEl.querySelectorAll('[data-remain]').forEach(function (b) {
-          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-remain'), true); });
-        });
-
-        // 个人明细
-        var pid2 = state.selectedPlayer, p2 = PLAYER_MAP[pid2], gn = state.viewGame;
-        var agg = {}, mine = [];
-        g().plays.forEach(function (pl) {
-          if (pl.player !== pid2) return;
-          mine.push(pl);
-          for (var k in pl.cards) agg[k] = (agg[k] || 0) + pl.cards[k];
-        });
-        var html = '<div class="detail-head">' +
-          '<span class="d-name">' + esc(p2.label) + '</span>' +
-          '<span class="d-stat">' + (pid2 === 'you' ? '你自己' : (p2.ally ? '联邦队友' : '对手')) + '</span>' +
-          '<span class="d-stat">还剩 <b>' + playerLeft(gn, pid2) + '</b> 张</span>' +
-          '<span class="d-stat">已出 <b>' + playerPlayed(gn, pid2) + '</b> 张 · <b>' + mine.length + '</b> 手</span></div>';
-        if (mine.length === 0) {
-          html += '<div class="agg-empty">本局还没出过牌。</div>';
-        } else {
-          html += '<div class="detail-sub">已出全部 · 按点数汇总（牌面×张数）</div>';
-          html += '<div class="agg-text">' + esc(fmtCards(agg)) + '</div>';
-          html += '<div class="detail-sub">每一手明细 · 共 ' + mine.length + ' 手</div>';
-          html += '<div class="detail-plays">';
-          mine.slice().reverse().forEach(function (pl) {
-            html += '<div class="detail-play">第 ' + pl.seq + ' 手：<b>' + esc(fmtCards(pl.cards)) + '</b>（' + cardsTotal(pl.cards) + ' 张）</div>';
-          });
-          html += '</div>';
-        }
-        document.getElementById('playerDetail').innerHTML = html;
       }
 
       /* ============ 渲染：余牌矩阵 ============ */
@@ -719,7 +659,7 @@
         var plays = g().plays;
         document.getElementById('btnUndo').disabled = plays.length === 0;
         if (plays.length === 0) {
-          document.getElementById('timeline').innerHTML = '<div class="tl-empty">本局还没有记录，用记牌区记第一手。</div>';
+          document.getElementById('timeline').innerHTML = '<div class="tl-empty">本局还没有记录，点牌桌上任意一家，在弹窗里记第一手。</div>';
           return;
         }
         // 每一手出完时，全场六人各自的剩余快照（回看当时最直观）
@@ -747,7 +687,7 @@
         var tl = document.getElementById('timeline');
         tl.innerHTML = html;
         tl.querySelectorAll('[data-who]').forEach(function (b) {
-          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-who'), true); });
+          b.addEventListener('click', function () { openPlayer(this.getAttribute('data-who')); });
         });
         tl.querySelectorAll('[data-del]').forEach(function (b) {
           b.addEventListener('click', function () {
@@ -770,7 +710,7 @@
         });
       }
 
-      /* ============ 渲染：记牌区 ============ */
+      /* ============ 渲染：玩家弹窗（已出牌 + 记牌） ============ */
       function pickMax(rankId) {
         var byRank = rankLeft(state.viewGame, rankId);
         var byHand = playerLeft(state.viewGame, state.selectedPlayer);
@@ -787,45 +727,57 @@
         save(); renderAll();
         toast('已记：' + PLAYER_MAP[pid].label + ' ' + fmtCards(cards));
       }
-      function renderRecorder() {
-        var pid = state.selectedPlayer;
-        document.getElementById('recPlayerName').textContent = PLAYER_MAP[pid].label;
-        document.getElementById('recPlayerLeft').textContent = playerLeft(state.viewGame, pid);
-
-        var ph = '';
-        PLAYERS.forEach(function (p) {
-          ph += '<button type="button" class="rec-person' + (pid === p.id ? ' active' : '') + '" data-p="' + p.id + '">' +
-            esc(p.label) + '<span class="rp-left">' + playerLeft(state.viewGame, p.id) + '</span></button>';
+      function renderSheet() {
+        if (!sheetOpen) return;
+        var pid = state.selectedPlayer, p = PLAYER_MAP[pid], gn = state.viewGame;
+        var agg = {}, mine = [];
+        g().plays.forEach(function (pl) {
+          if (pl.player !== pid) return;
+          mine.push(pl);
+          for (var k in pl.cards) agg[k] = (agg[k] || 0) + pl.cards[k];
         });
-        var rp = document.getElementById('recPeople');
-        rp.innerHTML = ph;
-        rp.querySelectorAll('[data-p]').forEach(function (b) {
-          b.addEventListener('click', function () { selectPlayer(this.getAttribute('data-p')); });
-        });
+        var html = '<div class="sheet-head"><div>' +
+          '<span class="sh-name">' + esc(p.label) + '</span><span class="sh-tag">' + (pid === 'you' ? '你自己' : (p.ally ? '联邦队友' : '对手')) + '</span>' +
+          '<div class="sh-stats">已出 <b>' + playerPlayed(gn, pid) + '</b> 张 · <b>' + mine.length + '</b> 手</div></div>' +
+          '<div class="sh-left"><b>' + playerLeft(gn, pid) + '</b><span>还剩（张）</span></div>' +
+          '<button type="button" class="sheet-close" id="sheetClose" aria-label="关闭">×</button></div>';
 
-        var ch = '';
+        html += '<div class="sheet-sub">已出全部（牌面×张数）</div>';
+        html += mine.length ? '<div class="agg-text">' + esc(fmtCards(agg)) + '</div>' : '<div class="agg-empty">本局还没出过牌。</div>';
+
+        html += '<div class="sheet-sub">记牌 · 点牌面，再点张数直接记下（记错了在出牌记录里删那一手）</div>';
+        html += '<div class="rec-cards">';
         RANKS.forEach(function (r) {
-          var left = rankLeft(state.viewGame, r.id);
-          ch += '<button type="button" class="rec-card' + (picking === r.id ? ' picking' : '') + (left === 0 ? ' spent' : '') +
+          var left = rankLeft(gn, r.id);
+          html += '<button type="button" class="rec-card' + (picking === r.id ? ' picking' : '') + (left === 0 ? ' spent' : '') +
             '" data-card="' + r.id + '"><span class="rc-rank ' + (r.cls ? r.cls + '-t' : '') + '">' + esc(r.label) + '</span>' +
-            '<span class="rc-left">剩 ' + left + '</span></button>';
+            '<span class="rc-left">全场剩 ' + left + '</span></button>';
         });
-        var rc = document.getElementById('recCards');
-        rc.innerHTML = ch;
-        rc.querySelectorAll('[data-card]').forEach(function (b) {
+        html += '</div><div id="sheetPicker"></div>';
+
+        if (mine.length) {
+          html += '<div class="sheet-sub">每一手明细 · 共 ' + mine.length + ' 手</div><div class="sheet-plays">';
+          mine.slice().reverse().forEach(function (pl) {
+            html += '<div class="detail-play">第 ' + pl.seq + ' 手：<b>' + esc(fmtCards(pl.cards)) + '</b>（' + cardsTotal(pl.cards) + ' 张）</div>';
+          });
+          html += '</div>';
+        }
+        var body = document.getElementById('sheetBody');
+        body.innerHTML = html;
+        document.getElementById('sheetClose').addEventListener('click', closeSheet);
+        body.querySelectorAll('[data-card]').forEach(function (b) {
           b.addEventListener('click', function () {
             var rid = this.getAttribute('data-card');
             picking = (picking === rid) ? null : rid;
             recCountExpanded = false;
-            renderRecorder();
+            renderSheet();
           });
         });
-
-        // 张数选择：1–12 整齐网格，更多才展开；点数字直接录入，不用再确认
-        var pk = document.getElementById('recPicker');
+        // 张数选择：1–12 整齐网格，更多才展开；点数字直接录入，弹窗保持打开方便连记
+        var pk = document.getElementById('sheetPicker');
         if (picking) {
-          var max = pickMax(picking), r = RANK_MAP[picking];
-          pk.innerHTML = countPickerHTML(r.label + ' 出几张？点数字直接记下', max, recCountExpanded, false);
+          var max = pickMax(picking), r2 = RANK_MAP[picking];
+          pk.innerHTML = countPickerHTML(r2.label + ' 出几张？点数字直接记下', max, recCountExpanded, false);
           pk.querySelectorAll('[data-pnum]').forEach(function (b) {
             b.addEventListener('click', function () {
               recordPlayNow(picking, parseInt(this.getAttribute('data-pnum'), 10));
@@ -834,13 +786,13 @@
           pk.querySelectorAll('[data-pmore]').forEach(function (b) {
             b.addEventListener('click', function () {
               recCountExpanded = this.getAttribute('data-pmore') === '1';
-              renderRecorder();
+              renderSheet();
             });
           });
           pk.querySelectorAll('[data-pcancel]').forEach(function (b) {
-            b.addEventListener('click', function () { picking = null; recCountExpanded = false; renderRecorder(); });
+            b.addEventListener('click', function () { picking = null; recCountExpanded = false; renderSheet(); });
           });
-        } else pk.innerHTML = '';
+        }
       }
       document.getElementById('btnUndo').addEventListener('click', function () {
         var arr = g().plays;
@@ -850,195 +802,244 @@
         toast('已撤销：' + PLAYER_MAP[last.player].label + ' ' + fmtCards(last.cards));
       });
 
-      /* ============ 进贡 / 还贡 ============ */
-      function tribPickMax(area, rankId) {
+      /* ============ 进贡区 / 买送34区（两个独立区域，各自记、各自显示） ============ */
+      function tribPickMax(form, area, rankId) {
         var used = 0;
         g().tributes.forEach(function (t) {
           used += (t.cards[rankId] || 0) + ((t.ret || {})[rankId] || 0);
         });
-        var inStage = (trib.give[rankId] || 0) + (trib.ret[rankId] || 0);
-        var cap = RANK_MAP[rankId].total - used - inStage + ((area === 'give' ? trib.give : trib.ret)[rankId] || 0);
+        var stagedBoth = (tribC.give[rankId] || 0) + (tribC.ret[rankId] || 0) + (tribB.give[rankId] || 0) + (tribB.ret[rankId] || 0);
+        var cur = ((area === 'give' ? form.give : form.ret)[rankId] || 0);
+        var cap = RANK_MAP[rankId].total - used - stagedBoth + cur;
         return Math.max(0, cap);
       }
-      function miniGridHTML(area, store) {
+      function miniGridHTML(form, zone, area, store) {
         var html = '<div class="mini-cards">';
         TRIB_RANKS.forEach(function (r) {
-          var isPick = trib.pickArea === area && trib.pickRank === r.id;
-          html += '<button type="button" class="mini-card' + (isPick ? ' picking' : '') + '" data-area="' + area + '" data-rank="' + r.id + '">' +
+          var isPick = form.pickArea === area && form.pickRank === r.id;
+          html += '<button type="button" class="mini-card' + (isPick ? ' picking' : '') + '" data-zone="' + zone + '" data-area="' + area + '" data-rank="' + r.id + '">' +
             '<span class="' + (r.cls ? r.cls + '-t' : '') + '">' + esc(r.label) + '</span>' +
             (store[r.id] ? '<span class="staged-badge">×' + store[r.id] + '</span>' : '') + '</button>';
         });
         return html + '</div>';
       }
-      function tribPickerHTML(area) {
-        if (trib.pickArea !== area || !trib.pickRank) return '';
-        var max = tribPickMax(area, trib.pickRank), r = RANK_MAP[trib.pickRank];
-        var has = !!((area === 'give' ? trib.give : trib.ret)[trib.pickRank]);
-        return countPickerHTML(r.label + ' 几张？', max, tribCountExpanded, has);
+      function tribPickerHTML(form, zone, expanded) {
+        if (!form.pickArea || !form.pickRank) return '';
+        // picker 只属于当前正在操作的那个区；用 data-zone 在绑定时区分，这里靠渲染位置区分即可
+        var max = tribPickMax(form, form.pickArea, form.pickRank), r = RANK_MAP[form.pickRank];
+        var has = !!((form.pickArea === 'give' ? form.give : form.ret)[form.pickRank]);
+        return countPickerHTML(r.label + ' 几张？', max, expanded, has);
       }
-      function peopleChips(field, activeId) {
-        var html = '<div class="chip-row">';
-        PLAYERS.forEach(function (p) {
-          html += '<button type="button" class="pick-chip' + (activeId === p.id ? ' active' : '') + '" data-field="' + field + '" data-p="' + p.id + '">' + esc(p.label) + '</button>';
+      function peopleGridHTML(zone, field, activeId) {
+        var html = '<div class="people-grid">';
+        PLAYERS.forEach(function (pl) {
+          html += '<button type="button" class="pick-chip' + (activeId === pl.id ? ' active' : '') + '" data-zone="' + zone + '" data-field="' + field + '" data-p="' + pl.id + '">' + esc(pl.label) + '</button>';
         });
         return html + '</div>';
       }
-      function renderTribute() {
-        var panel = document.getElementById('tributePanel');
-        var isClassic = isClassicType(trib.type), isBuy = isBuyType(trib.type), isSong = isSongType(trib.type);
-        var classicLocked = isClassic && state.viewGame < 2;
-        var head = '<div class="panel-head"><h2>进贡区</h2><span class="hint">第 ' + state.viewGame + ' 局</span></div>' +
-          '<div class="trib-note">进贡：点贡 / 烧贡 / 闷贡 / 落贡，第 2 局起记，鹰不参与进贡，只有落贡接着选还贡。另加买 3 买 4、联邦送 3 送 4，第 1 局也能记；买 / 送选类型后自动带上 1 张对应的 3 / 4，点牌可改张数。</div>';
-        var classicChips = '<div class="chip-row">';
-        TRIB_TYPES.forEach(function (t) {
-          if (!isClassicType(t.id)) return;
-          classicChips += '<button type="button" class="pick-chip' + (trib.type === t.id ? ' active' : '') + '" data-ttype="' + t.id + '">' + t.label + '</button>';
+      function chipsZoneHTML(cards, zone, area) {
+        var html = '';
+        RANKS.forEach(function (r) {
+          if (!cards[r.id]) return;
+          html += '<span class="card-chip ' + r.cls + '" data-remove="' + r.id + '" data-zone="' + zone + '" data-area="' + area + '" title="点一下移除">' + esc(r.label) + '<span class="n">×' + cards[r.id] + '</span></span>';
         });
-        classicChips += '</div>';
-        var buySongChips = '<div class="chip-row">';
-        TRIB_TYPES.forEach(function (t) {
-          if (isClassicType(t.id)) return;
-          buySongChips += '<button type="button" class="pick-chip p-amber' + (trib.type === t.id ? ' active' : '') + '" data-ttype="' + t.id + '">' + t.label + '</button>';
-        });
-        buySongChips += '</div>';
-
-        var giverLabel = isClassic ? '进贡方（交贡的人）' : '给出方（卖 / 送出 3·4 的人）';
-        var receiverLabel = isClassic ? '收贡方（吃贡的人）' : '拿到方（买 / 收到 3·4 的人）';
-        var giveLabel = isClassic ? '进贡的牌（交手里最大的牌，鹰不能进贡，点牌选张数）' : '给出的牌（一般就是那张 3 或 4，点牌选张数）';
-
-        var html = head +
-          '<div class="trib-group"><div class="trib-label">进贡（第 2 局起）' + (state.viewGame < 2 ? ' · 本局第 1 局，暂不能记进贡' : '') + '</div>' + classicChips + '</div>' +
-          '<div class="trib-group"><div class="trib-label">买 3 买 4 · 送 3 送 4（第 1 局也能记）</div>' + buySongChips + '</div>' +
-          (classicLocked ? '<div class="trib-note" style="color:var(--red);font-weight:600;">第 1 局无进贡，点贡 / 烧贡 / 闷贡 / 落贡从第 2 局起再记；本局先用下面的买 3 买 4、送 3 送 4。</div>' : '') +
-          '<div class="trib-group"><div class="trib-label">' + giverLabel + '</div>' + peopleChips('giver', trib.giver) + '</div>' +
-          '<div class="trib-group"><div class="trib-label">' + receiverLabel + '</div>' + peopleChips('receiver', trib.receiver) + '</div>' +
-          '<div class="trib-group"><div class="trib-label">' + giveLabel + '</div>' +
-            miniGridHTML('give', trib.give) + tribPickerHTML('give') +
-            '<div class="trib-staged">' + (cardsTotal(trib.give) ? chipsHTML(trib.give, true, 'give') : '<span class="agg-empty">还没选牌</span>') + '</div></div>';
-
-        if (trib.type === 'luo') {
-          html += '<div class="trib-group"><div class="trib-label">还贡的小牌（收贡方还给进贡方同等数量的小牌，一般 3、4、5，点牌选张数）</div>' +
-            miniGridHTML('ret', trib.ret) + tribPickerHTML('ret') +
-            '<div class="trib-staged">' + (cardsTotal(trib.ret) ? chipsHTML(trib.ret, true, 'ret') : '<span class="agg-empty">还没选还贡的牌</span>') + '</div></div>';
-        } else if (isBuy) {
-          html += '<div class="trib-group"><div class="trib-label">换回的牌（买方付给给出方的牌；花钱买、没用牌换就不用选）</div>' +
-            miniGridHTML('ret', trib.ret) + tribPickerHTML('ret') +
-            '<div class="trib-staged">' + (cardsTotal(trib.ret) ? chipsHTML(trib.ret, true, 'ret') : '<span class="agg-empty">还没选换回的牌</span>') + '</div></div>';
-        }
-        if (isSong) {
-          html += '<div class="trib-note">送 3 送 4 只能联邦之间送。</div>';
-        }
-        html += '<button type="button" class="btn-trib" id="btnTrib">记下这笔' + TRIB_MAP[trib.type].label + '</button>' +
-          (tribErr ? '<div class="form-err">' + esc(tribErr) + '</div>' : '') +
-          tribListHTML();
-        panel.innerHTML = html;
-        bindTribute(panel);
+        return html;
       }
-      function tribListHTML() {
-        var ts = g().tributes;
-        if (!ts.length) return '';
-        var html = '<div class="trib-list">';
+      function tribListHTML(filterClassic) {
+        var ts = g().tributes.filter(function (t) { return isClassicType(t.type) === filterClassic; });
+        if (!ts.length) return '<div class="trib-list"><div class="list-head">' + (filterClassic ? '进贡记录' : '买送记录') + ' · 0 笔</div><div class="trib-note">还没有记录。</div></div>';
+        var html = '<div class="trib-list"><div class="list-head">' + (filterClassic ? '进贡记录' : '买送记录') + ' · ' + ts.length + ' 笔</div>';
         ts.slice().reverse().forEach(function (t) {
+          var retLabel = isBuyType(t.type) ? '换回：' : (t.type === 'luo' ? '还贡：' : '付出：');
           html += '<div class="trib-item"><div class="t-head"><span class="trib-type">' + TRIB_MAP[t.type].label + '</span>' +
             '<span class="t-who">' + esc(PLAYER_MAP[t.giver].label) + ' → ' + esc(PLAYER_MAP[t.receiver].label) + '</span>' +
             '<button type="button" class="tl-del" data-tdel="' + t.id + '">删除</button></div>' +
             '<div class="t-cards">' + esc(fmtCards(t.cards)) + '（' + cardsTotal(t.cards) + ' 张）</div>' +
-            (cardsTotal(t.ret || {}) ? '<div class="t-ret">' + (isBuyType(t.type) ? '换回：' : (t.type === 'luo' ? '还贡：' : '付出：')) + esc(fmtCards(t.ret)) + '（' + cardsTotal(t.ret) + ' 张）</div>' : '') +
+            (cardsTotal(t.ret || {}) ? '<div class="t-ret">' + retLabel + esc(fmtCards(t.ret)) + '（' + cardsTotal(t.ret) + ' 张）</div>' : '') +
             '</div>';
         });
         return html + '</div>';
       }
-      function bindTribute(panel) {
-        panel.querySelectorAll('[data-ttype]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            trib.type = this.getAttribute('data-ttype');
-            trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false;
-            trib.give = {};
-            if (TRIB_EXPECT[trib.type]) trib.give[TRIB_EXPECT[trib.type]] = 1;
-            if (isSongType(trib.type) && PLAYER_MAP[trib.giver].ally !== PLAYER_MAP[trib.receiver].ally) {
-              // 送只能联邦之间送：默认改成一位联邦队友送给拿到方
-              for (var i = 0; i < PLAYERS.length; i++) {
-                if (PLAYERS[i].id !== trib.receiver && PLAYERS[i].ally === PLAYER_MAP[trib.receiver].ally) { trib.giver = PLAYERS[i].id; break; }
-              }
-            }
-            tribErr = ''; renderTribute();
-          });
+
+      /* ---------- A. 进贡区：只放点/烧/闷/落 ---------- */
+      function renderTributeClassic() {
+        var panel = document.getElementById('tributePanel');
+        if (!panel) return;
+        var locked = state.viewGame < 2;
+        var html = '<div class="panel-head"><h2>进贡区</h2><span class="hint">第 ' + state.viewGame + ' 局 · 第 2 局起</span></div>' +
+          '<div class="zone-note"><b>只记进贡：</b>点贡 · 烧贡 · 闷贡 · 落贡。鹰不参与进贡，<b>只有落贡</b>接着选还贡。</div>';
+        if (locked) {
+          html += '<div class="locked-banner">第 1 局无进贡<span>进贡从第 2 局起再记，本局先用下面的买送 3·4 区。</span></div>' + tribListHTML(true);
+          panel.innerHTML = html;
+          bindTribList(panel, 'classic');
+          return;
+        }
+        var typeGrid = '<div class="type-grid">';
+        TRIB_TYPES.forEach(function (t) {
+          if (!isClassicType(t.id)) return;
+          typeGrid += '<button type="button" class="pick-chip' + (tribC.type === t.id ? ' active' : '') + '" data-zone="classic" data-ttype="' + t.id + '">' + t.label + '</button>';
         });
-        panel.querySelectorAll('[data-field]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            trib[this.getAttribute('data-field')] = this.getAttribute('data-p');
-            tribErr = ''; renderTribute();
-          });
-        });
-        panel.querySelectorAll('.mini-card').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var area = this.getAttribute('data-area'), rank = this.getAttribute('data-rank');
-            if (trib.pickArea === area && trib.pickRank === rank) { trib.pickArea = null; trib.pickRank = null; }
-            else { trib.pickArea = area; trib.pickRank = rank; }
-            tribCountExpanded = false;
-            renderTribute();
-          });
-        });
-        panel.querySelectorAll('[data-pnum]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var v = parseInt(this.getAttribute('data-pnum'), 10), store = trib.pickArea === 'give' ? trib.give : trib.ret;
-            if (v > 0) store[trib.pickRank] = v;
-            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; tribErr = ''; renderTribute();
-          });
-        });
-        panel.querySelectorAll('[data-pmore]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            tribCountExpanded = this.getAttribute('data-pmore') === '1';
-            renderTribute();
-          });
-        });
-        panel.querySelectorAll('[data-pclear]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var store = trib.pickArea === 'give' ? trib.give : trib.ret;
-            delete store[trib.pickRank];
-            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; renderTribute();
-          });
-        });
-        panel.querySelectorAll('[data-pcancel]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            trib.pickArea = null; trib.pickRank = null; tribCountExpanded = false; renderTribute();
-          });
-        });
-        panel.querySelectorAll('[data-remove]').forEach(function (c) {
-          c.addEventListener('click', function () {
-            var store = this.getAttribute('data-area') === 'give' ? trib.give : trib.ret;
-            delete store[this.getAttribute('data-remove')]; renderTribute();
-          });
-        });
+        typeGrid += '</div>';
+        html += '<div class="trib-group"><div class="trib-label">1 · 选类型</div>' + typeGrid + '</div>' +
+          '<div class="trib-group"><div class="trib-label">2 · 进贡方（交贡）</div>' + peopleGridHTML('classic', 'giver', tribC.giver) + '</div>' +
+          '<div class="flow-arrow">↓ 进给 ↓</div>' +
+          '<div class="trib-group"><div class="trib-label">收贡方（吃贡）</div>' + peopleGridHTML('classic', 'receiver', tribC.receiver) + '</div>' +
+          '<div class="trib-group"><div class="trib-label">3 · 进贡的牌（交最大的牌，无鹰，点牌选张数）</div>' +
+            miniGridHTML(tribC, 'classic', 'give', tribC.give) +
+            (tribC.pickArea === 'give' ? tribPickerHTML(tribC, 'classic', tribCExpanded) : '') +
+            '<div class="trib-staged">' + (cardsTotal(tribC.give) ? chipsZoneHTML(tribC.give, 'classic', 'give') : '<span class="agg-empty">还没选牌</span>') + '</div></div>';
+        if (tribC.type === 'luo') {
+          html += '<div class="trib-group ret-box"><div class="trib-label">4 · 还贡（落贡才还：收贡方还同等数量小牌，一般 3 / 4 / 5）</div>' +
+            miniGridHTML(tribC, 'classic', 'ret', tribC.ret) +
+            (tribC.pickArea === 'ret' ? tribPickerHTML(tribC, 'classic', tribCExpanded) : '') +
+            '<div class="trib-staged">' + (cardsTotal(tribC.ret) ? chipsZoneHTML(tribC.ret, 'classic', 'ret') : '<span class="agg-empty">还没选还贡的牌</span>') + '</div></div>';
+        }
+        html += '<button type="button" class="btn-trib" id="btnTribC">记下这笔' + TRIB_MAP[tribC.type].label + '</button>' +
+          (tribCErr ? '<div class="form-err">' + esc(tribCErr) + '</div>' : '') +
+          tribListHTML(true);
+        panel.innerHTML = html;
+        bindZone(panel, tribC, 'classic');
+      }
+
+      /* ---------- B. 买送34区：只放买3/买4/送3/送4 ---------- */
+      function renderBuySong() {
+        var panel = document.getElementById('buySongPanel');
+        if (!panel) return;
+        var isBuy = isBuyType(tribB.type), isSong = isSongType(tribB.type);
+        var buyRow = '<div class="bs-row"><div class="bs-tag">买</div><div class="type-grid-2">' +
+          '<button type="button" class="pick-chip p-amber' + (tribB.type === 'mai3' ? ' active' : '') + '" data-zone="buysong" data-ttype="mai3">买 3</button>' +
+          '<button type="button" class="pick-chip p-amber' + (tribB.type === 'mai4' ? ' active' : '') + '" data-zone="buysong" data-ttype="mai4">买 4</button></div></div>';
+        var songRow = '<div class="bs-row"><div class="bs-tag song">送</div><div class="type-grid-2">' +
+          '<button type="button" class="pick-chip' + (tribB.type === 'song3' ? ' active' : '') + '" data-zone="buysong" data-ttype="song3">送 3</button>' +
+          '<button type="button" class="pick-chip' + (tribB.type === 'song4' ? ' active' : '') + '" data-zone="buysong" data-ttype="song4">送 4</button></div></div>';
+        var giverLabel = isBuy ? '卖出方（给出 3 / 4）' : '送出方（联邦）';
+        var receiverLabel = isBuy ? '买到方' : '收到方（联邦）';
+        var giveLabel = isBuy ? '给出的牌（已自动带上 1 张，点牌可改张数）' : '送出的牌（已自动带上 1 张，点牌可改张数）';
+        var html = '<div class="panel-head"><h2>买送 3·4 区</h2><span class="hint">第 ' + state.viewGame + ' 局 · 第 1 局也能记</span></div>' +
+          '<div class="zone-note"><b>买</b>没 3 买 3、没 4 买 4，可再选换回的牌；<b>送</b>只限联邦之间送 3 / 送 4。和进贡分开记、分开看。</div>' +
+          '<div class="trib-group"><div class="trib-label">1 · 选类型</div>' + buyRow + songRow + '</div>' +
+          '<div class="trib-group"><div class="trib-label">2 · ' + giverLabel + '</div>' + peopleGridHTML('buysong', 'giver', tribB.giver) + '</div>' +
+          '<div class="flow-arrow">↓ ' + (isBuy ? '卖给' : '送给') + ' ↓</div>' +
+          '<div class="trib-group"><div class="trib-label">' + receiverLabel + '</div>' + peopleGridHTML('buysong', 'receiver', tribB.receiver) + '</div>' +
+          '<div class="trib-group"><div class="trib-label">3 · ' + giveLabel + '</div>' +
+            miniGridHTML(tribB, 'buysong', 'give', tribB.give) +
+            (tribB.pickArea === 'give' ? tribPickerHTML(tribB, 'buysong', tribBExpanded) : '') +
+            '<div class="trib-staged">' + (cardsTotal(tribB.give) ? chipsZoneHTML(tribB.give, 'buysong', 'give') : '<span class="agg-empty">还没选牌</span>') + '</div></div>';
+        if (isBuy) {
+          html += '<div class="trib-group ret-box"><div class="trib-label">4 · 换回的牌（可选，花钱买就不用选）</div>' +
+            miniGridHTML(tribB, 'buysong', 'ret', tribB.ret) +
+            (tribB.pickArea === 'ret' ? tribPickerHTML(tribB, 'buysong', tribBExpanded) : '') +
+            '<div class="trib-staged">' + (cardsTotal(tribB.ret) ? chipsZoneHTML(tribB.ret, 'buysong', 'ret') : '<span class="agg-empty">还没选换回的牌</span>') + '</div></div>';
+        }
+        if (isSong) html += '<div class="trib-note">送 3 / 送 4 只能联邦之间送，选了对手会自动拦住。</div>';
+        html += '<button type="button" class="btn-buysong" id="btnTribB">记下这笔' + TRIB_MAP[tribB.type].label + '</button>' +
+          (tribBErr ? '<div class="form-err">' + esc(tribBErr) + '</div>' : '') +
+          tribListHTML(false);
+        panel.innerHTML = html;
+        bindZone(panel, tribB, 'buysong');
+      }
+      function renderTribute() { renderTributeClassic(); renderBuySong(); }
+
+      function bindTribList(panel, zone) {
         panel.querySelectorAll('[data-tdel]').forEach(function (b) {
           b.addEventListener('click', function () {
             var id = this.getAttribute('data-tdel');
-            showConfirm('删除这笔进贡 / 买 / 送记录？', '删除', true, function () {
+            showConfirm('删除这笔记录？', '删除', true, function () {
               var arr = g().tributes;
               for (var i = 0; i < arr.length; i++) if (arr[i].id === id) { arr.splice(i, 1); break; }
               reSeq(state.viewGame); save(); renderAll(); toast('已删除记录');
             });
           });
         });
-        var btn = document.getElementById('btnTrib');
-        if (btn) btn.addEventListener('click', submitTribute);
       }
-      function submitTribute() {
-        if (isClassicType(trib.type) && state.viewGame < 2) { tribErr = '第 1 局无进贡，点贡 / 烧贡 / 闷贡 / 落贡从第 2 局起再记。'; renderTribute(); return; }
-        if (trib.giver === trib.receiver) { tribErr = isClassicType(trib.type) ? '进贡方和收贡方不能是同一个人。' : '给出方和拿到方不能是同一个人。'; renderTribute(); return; }
-        if (isSongType(trib.type) && PLAYER_MAP[trib.giver].ally !== PLAYER_MAP[trib.receiver].ally) { tribErr = '送3送4只能联邦之间送：给出方和拿到方得是同一联邦。'; renderTribute(); return; }
-        if (cardsTotal(trib.give) === 0) { tribErr = isClassicType(trib.type) ? '先点牌、选张数，把进贡的牌选上。' : '先点牌、选张数，把给出的牌选上。'; renderTribute(); return; }
-        g().tributes.push({
-          id: uid(), type: trib.type, giver: trib.giver, receiver: trib.receiver,
-          cards: Object.assign({}, trib.give), ret: tribNeedsReturn(trib.type) ? Object.assign({}, trib.ret) : {}
+      function bindZone(panel, form, zone) {
+        var isCl = zone === 'classic';
+        function rerender() { renderTribute(); }
+        function setErr(v) { if (isCl) tribCErr = v; else tribBErr = v; }
+        function expanded() { return isCl ? tribCExpanded : tribBExpanded; }
+        function setExpanded(v) { if (isCl) tribCExpanded = v; else tribBExpanded = v; }
+        panel.querySelectorAll('[data-ttype]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            form.type = this.getAttribute('data-ttype');
+            form.ret = {}; form.pickArea = null; form.pickRank = null; setExpanded(false);
+            form.give = {};
+            if (TRIB_EXPECT[form.type]) form.give[TRIB_EXPECT[form.type]] = 1;
+            if (isSongType(form.type) && PLAYER_MAP[form.giver].ally !== PLAYER_MAP[form.receiver].ally) {
+              for (var i = 0; i < PLAYERS.length; i++) {
+                if (PLAYERS[i].id !== form.receiver && PLAYERS[i].ally === PLAYER_MAP[form.receiver].ally) { form.giver = PLAYERS[i].id; break; }
+              }
+            }
+            setErr(''); rerender();
+          });
         });
-        var txt = TRIB_MAP[trib.type].label + '：' + PLAYER_MAP[trib.giver].label + ' → ' + PLAYER_MAP[trib.receiver].label + ' ' + fmtCards(trib.give);
-        trib.give = {};
-        if (TRIB_EXPECT[trib.type]) trib.give[TRIB_EXPECT[trib.type]] = 1;
-        trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
-        reSeq(state.viewGame); save(); renderAll();
-        toast('已记' + txt);
+        panel.querySelectorAll('[data-field]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            form[this.getAttribute('data-field')] = this.getAttribute('data-p');
+            setErr(''); rerender();
+          });
+        });
+        panel.querySelectorAll('.mini-card').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var other = isCl ? tribB : tribC; other.pickArea = null; other.pickRank = null;
+            var area = this.getAttribute('data-area'), rank = this.getAttribute('data-rank');
+            if (form.pickArea === area && form.pickRank === rank) { form.pickArea = null; form.pickRank = null; }
+            else { form.pickArea = area; form.pickRank = rank; }
+            setExpanded(false); rerender();
+          });
+        });
+        panel.querySelectorAll('[data-pnum]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var v = parseInt(this.getAttribute('data-pnum'), 10), store = form.pickArea === 'give' ? form.give : form.ret;
+            if (v > 0) store[form.pickRank] = v;
+            form.pickArea = null; form.pickRank = null; setExpanded(false); setErr(''); rerender();
+          });
+        });
+        panel.querySelectorAll('[data-pmore]').forEach(function (b) {
+          b.addEventListener('click', function () { setExpanded(this.getAttribute('data-pmore') === '1'); rerender(); });
+        });
+        panel.querySelectorAll('[data-pclear]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var store = form.pickArea === 'give' ? form.give : form.ret;
+            delete store[form.pickRank];
+            form.pickArea = null; form.pickRank = null; setExpanded(false); rerender();
+          });
+        });
+        panel.querySelectorAll('[data-pcancel]').forEach(function (b) {
+          b.addEventListener('click', function () { form.pickArea = null; form.pickRank = null; setExpanded(false); rerender(); });
+        });
+        panel.querySelectorAll('[data-remove]').forEach(function (c) {
+          c.addEventListener('click', function () {
+            var store = this.getAttribute('data-area') === 'give' ? form.give : form.ret;
+            delete store[this.getAttribute('data-remove')]; rerender();
+          });
+        });
+        bindTribList(panel, zone);
+        var btnC = document.getElementById('btnTribC');
+        if (btnC && isCl) btnC.addEventListener('click', submitClassic);
+        var btnB = document.getElementById('btnTribB');
+        if (btnB && !isCl) btnB.addEventListener('click', submitBuySong);
       }
+      function submitClassic() {
+        if (state.viewGame < 2) { tribCErr = '第 1 局无进贡，点贡 / 烧贡 / 闷贡 / 落贡从第 2 局起再记。'; renderTribute(); return; }
+        if (tribC.giver === tribC.receiver) { tribCErr = '进贡方和收贡方不能是同一个人。'; renderTribute(); return; }
+        if (cardsTotal(tribC.give) === 0) { tribCErr = '先点牌、选张数，把进贡的牌选上。'; renderTribute(); return; }
+        if (tribC.give.eagle) { tribCErr = '鹰不能进贡。'; renderTribute(); return; }
+        g().tributes.push({ id: uid(), type: tribC.type, giver: tribC.giver, receiver: tribC.receiver, cards: Object.assign({}, tribC.give), ret: tribC.type === 'luo' ? Object.assign({}, tribC.ret) : {} });
+        var txt = TRIB_MAP[tribC.type].label + '：' + PLAYER_MAP[tribC.giver].label + ' → ' + PLAYER_MAP[tribC.receiver].label + ' ' + fmtCards(tribC.give);
+        tribC.give = {}; tribC.ret = {}; tribC.pickArea = null; tribC.pickRank = null; tribCErr = '';
+        reSeq(state.viewGame); save(); renderAll(); toast('已记' + txt);
+      }
+      function submitBuySong() {
+        if (tribB.giver === tribB.receiver) { tribBErr = '给出方和拿到方不能是同一个人。'; renderTribute(); return; }
+        if (isSongType(tribB.type) && PLAYER_MAP[tribB.giver].ally !== PLAYER_MAP[tribB.receiver].ally) { tribBErr = '送3送4只能联邦之间送：给出方和拿到方得是同一联邦。'; renderTribute(); return; }
+        if (cardsTotal(tribB.give) === 0) { tribBErr = '先点牌、选张数，把给出的牌选上。'; renderTribute(); return; }
+        g().tributes.push({ id: uid(), type: tribB.type, giver: tribB.giver, receiver: tribB.receiver, cards: Object.assign({}, tribB.give), ret: isBuyType(tribB.type) ? Object.assign({}, tribB.ret) : {} });
+        var txt = TRIB_MAP[tribB.type].label + '：' + PLAYER_MAP[tribB.giver].label + ' → ' + PLAYER_MAP[tribB.receiver].label + ' ' + fmtCards(tribB.give);
+        tribB.give = {}; if (TRIB_EXPECT[tribB.type]) tribB.give[TRIB_EXPECT[tribB.type]] = 1;
+        tribB.ret = {}; tribB.pickArea = null; tribB.pickRank = null; tribBErr = '';
+        reSeq(state.viewGame); save(); renderAll(); toast('已记' + txt);
+      }
+
       /* ============ 轮次操作（页脚按钮，一次绑定） ============ */
       function doneCount() { var n = 0; for (var d = 1; d <= 5; d++) if (state.finished[d]) n++; return n; }
       document.getElementById('btnNewRound').addEventListener('click', function () {
@@ -1049,7 +1050,7 @@
           state.roundNo = oldRound + 1;
           state.selectedPlayer = keepSel;
           staged = {}; picking = null;
-          trib.give = {}; trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+          tribC.give = {}; tribC.ret = {}; tribC.pickArea = null; tribC.pickRank = null; tribCErr = ''; tribB.give = { '3': 1 }; tribB.ret = {}; tribB.pickArea = null; tribB.pickRank = null; tribBErr = ''; tribB.type = 'mai3';
           save(); renderAll(); toast('已开启第 ' + state.roundNo + ' 轮');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -1059,7 +1060,7 @@
           var sel = state.selectedPlayer;
           state = freshState(); state.selectedPlayer = sel;
           staged = {}; picking = null;
-          trib.give = {}; trib.ret = {}; trib.pickArea = null; trib.pickRank = null; tribErr = '';
+          tribC.give = {}; tribC.ret = {}; tribC.pickArea = null; tribC.pickRank = null; tribCErr = ''; tribB.give = { '3': 1 }; tribB.ret = {}; tribB.pickArea = null; tribB.pickRank = null; tribBErr = ''; tribB.type = 'mai3';
           save(); renderAll(); toast('已清空，从第 1 轮第 1 局开始');
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -1081,7 +1082,8 @@
 
       /* ============ 总渲染 ============ */
       function renderAll() {
-        renderTabs(); renderTable(); renderMatrix(); renderTimeline(); renderRecorder(); renderTribute();
+        renderTabs(); renderTable(); renderMatrix(); renderTimeline(); renderTribute();
+        if (sheetOpen) renderSheet();
       }
       renderAll();
     </script>
